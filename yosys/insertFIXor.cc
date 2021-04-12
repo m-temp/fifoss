@@ -159,16 +159,6 @@ struct InsertFIXor : public Pass {
 		addFiXor(module, cell, output, sigOutput, s);
 	}
 
-	void insertXorFF(RTLIL::Module *module, RTLIL::Cell *cell, int faultNum, connectionStorage *addedInputs, connectionStorage *toplevelSigs)
-	{
-		insertXor(module, cell, ID::Q, faultNum, addedInputs, toplevelSigs);
-	}
-
-	void insertXorLogic(RTLIL::Module *module, RTLIL::Cell *cell, int faultNum, connectionStorage *addedInputs, connectionStorage *toplevelSigs)
-	{
-		insertXor(module, cell, ID::Y, faultNum, addedInputs, toplevelSigs);
-	}
-
 	void execute(vector<string> args, RTLIL::Design* design) override
 	{
 		bool flag_add_fi_input = true;
@@ -203,10 +193,10 @@ struct InsertFIXor : public Pass {
 			for (auto cell : module->selected_cells())
 			{
 				if (flag_inject_ff && cell->type.in(ID($adff))) {
-					insertXorFF(module, cell, i++, &addedInputs, &toplevelSigs);
+					insertXor(module, cell, ID::Q, i++, &addedInputs, &toplevelSigs);
 				}
 				if (flag_inject_logic && cell->type.in(ID($and), ID($or), ID($xor), ID($xnor))) {
-					insertXorLogic(module, cell, i++, &addedInputs, &toplevelSigs);
+					insertXor(module, cell, ID::Y, i++, &addedInputs, &toplevelSigs);
 				}
 			}
 			module->fixup_ports();
