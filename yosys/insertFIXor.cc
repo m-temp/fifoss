@@ -184,19 +184,27 @@ struct InsertFIXor : public Pass {
 			}
 			break;
 		}
+		extra_args(args, argidx, design);
 
 		connectionStorage addedInputs, toplevelSigs;
 
 		for (auto module : design->selected_modules())
 		{
+			log_debug("Checking module %s\n", log_id(module));
 			int i = 0;
 			for (auto cell : module->selected_cells())
 			{
-				if (flag_inject_ff && cell->type.in(ID($adff))) {
-					insertXor(module, cell, ID::Q, i++, &addedInputs, &toplevelSigs);
-				}
-				if (flag_inject_logic && cell->type.in(ID($and), ID($or), ID($xor), ID($xnor))) {
-					insertXor(module, cell, ID::Y, i++, &addedInputs, &toplevelSigs);
+				// Only operate on standard cells (do not change modules)
+				if (!cell->type.isPublic()) {
+					log_debug("Checking cell %s with type %s\n", log_id(cell), log_id(cell->type));
+					// Check for FF types and then assume all other cells are of type logic
+					if (cell->type.in(RTLIL::builtin_ff_cell_types())) {
+						if (flag_inject_ff) {
+							insertXor(module, cell, ID::Q, i++, &addedInputs, &toplevelSigs);
+						}
+					} else if (flag_inject_logic) {
+						insertXor(module, cell, ID::Y, i++, &addedInputs, &toplevelSigs);
+					}
 				}
 			}
 			module->fixup_ports();
