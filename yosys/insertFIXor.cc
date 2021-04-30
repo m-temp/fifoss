@@ -13,48 +13,64 @@ struct InsertFIXor : public Pass {
 
 	void add_toplevel_fi_module(RTLIL::Design* design, connectionStorage *addedInputs, connectionStorage *toplevelSigs, bool add_input_signal)
 	{
-		log_debug("Connecting fault signals to new toplevel module\n");
+		log_debug("Updating all modified modules with new fault injection wiring.\n");
 		connectionStorage work_queue_inputs;
+		int j = 0;
 		while (!addedInputs->empty())
 		{
 			work_queue_inputs = *addedInputs;
-			log_debug("Length of input queue: %zu\n", work_queue_inputs.size());
+			log_debug("Number of modules to update: %zu\n", work_queue_inputs.size());
 			addedInputs->clear();
 			for (auto m : work_queue_inputs)
 			{
 				int i = 0;
-				log_debug("Checking for input '%s' of module: '%s'\n", log_signal(m.second), log_id(m.first));
+				log_debug("Searching for instances of module: '%s' with signal '%s'\n", log_id(m.first), log_signal(m.second));
+				// Search in all modules, not search for a specific module in the design, but cells of this type.
 				for (auto module : design->modules())
 				{
+					RTLIL::SigSpec fi_cells;
+					// And check for all cells as those can be the instances of modules.
 					for (auto c : module->cells())
 					{
+						// Did we find a cell of the correct type?
 						if (c->type == m.first->name)
 						{
+							// New wire for cell to combine the available signals
 							int cell_width = m.second->width;
-							log_debug("Instance '%s' in '%s' with width '%u'\n", log_id(c), log_id(c->module), cell_width);
 							Wire *s = module->addWire(stringf("\\fault_%s_%d_%s", log_id(c), i++, log_id(m.second->name)), cell_width);
-							if (module != design->top_module())
-							{
-								// Forward wires to top
-								s->port_input = 1;
-								module->fixup_ports();
-							}
-							log_debug("Connecting wire '%s' to port '%s'\n", log_id(s->name), log_id(m.second->name));
+							fi_cells.append(s);
+							log_debug("Instance '%s' in '%s' with width '%u', connecting wire '%s' to port '%s'\n",
+									log_id(c), log_id(c->module), cell_width, log_id(s->name), log_id(m.second->name));
 							c->setPort(m.second->name, s);
-							if (module != design->top_module())
-							{
-								log_debug("Adding signal to forward list as this is not yet at the top\n");
-								addedInputs->push_back(std::make_pair(module, s));
-							}
-							else
-							{
-								log_debug("Storing top signals in list\n");
-								toplevelSigs->push_back(std::make_pair(module, s));
-							}
+						}
+					}
+					if (fi_cells.size())
+					{
+						RTLIL::Wire *mod_in = module->addWire(stringf("\\fi_forward_%d", j++), fi_cells.size());
+						if (module != design->top_module())
+						{
+							// Forward wires to top
+							mod_in->port_input = 1;
+							module->fixup_ports();
+						}
+						module->connect(fi_cells, mod_in);
+						if (module != design->top_module())
+						{
+							log_debug("Adding signal to forward list as this is not yet at the top: %s\n", log_id(mod_in->name));
+							addedInputs->push_back(std::make_pair(module, mod_in));
+						}
+						else
+						{
+							log_debug("New input at top level: %s\n", log_signal(mod_in));
+							toplevelSigs->push_back(std::make_pair(module, mod_in));
 						}
 					}
 				}
 			}
+		}
+
+		if (toplevelSigs->empty()) {
+			return;
 		}
 
 		// Connect all signals at the top to a FI module
@@ -104,33 +120,40 @@ struct InsertFIXor : public Pass {
 		}
 	}
 
-	Wire *addFaultSignal(RTLIL::Module *module, RTLIL::Cell *cell, IdString output, int faultNum, connectionStorage *moduleInputs, connectionStorage *toplevelSigs)
+	Wire *storeFaultSignal(RTLIL::Module *module, RTLIL::Cell *cell, IdString output, int faultNum, RTLIL::SigSpec *fi_mod)
 	{
 		std::string fault_sig_name;
-		int input;
 		if (module == module->design->top_module())
 		{
 			fault_sig_name = stringf("\\fi_%d", faultNum);
-			input = 0;
 		}
 		else
 		{
 			fault_sig_name = stringf("\\fi_%s_%d", log_id(module), faultNum);
-			input = 1;
 		}
 		Wire *s = module->addWire(fault_sig_name, cell->getPort(output).size());
-		s->port_input = input;
+		fi_mod->append(s);
+		return s;
+	}
+
+	void addModuleFiInut(RTLIL::Module *module, RTLIL::SigSpec fi_mod, connectionStorage *moduleInputs, connectionStorage *toplevelSigs)
+	{
+		if (!fi_mod.size()) {
+			return;
+		}
+		Wire *input = module->addWire("\\fi_xor", fi_mod.size());
+		module->connect(fi_mod, input);
+		input->port_input = true;
 		module->fixup_ports();
-		log_debug("Cell '%s': adding input '%s' for the module '%s'\n", log_id(cell), log_id(s->name), log_id(cell->module->name));
+		log_debug("Creating module local FI input %s with size %d\n", log_id(input->name), input->width);
 		if (module == module->design->top_module())
 		{
-			toplevelSigs->push_back(std::make_pair(module, s));
+			toplevelSigs->push_back(std::make_pair(module, input));
 		}
 		else
 		{
-			moduleInputs->push_back(std::make_pair(module, s));
+			moduleInputs->push_back(std::make_pair(module, input));
 		}
-		return s;
 	}
 
 	void addFiXor(RTLIL::Module *module, RTLIL::Cell *cell, RTLIL::IdString output, SigSpec outputSig, Wire *s)
@@ -150,12 +173,20 @@ struct InsertFIXor : public Pass {
 		log_debug("Mapped signal x: %s\n", log_signal(outMapped));
 	}
 
-	void insertXor(RTLIL::Module *module, RTLIL::Cell *cell, RTLIL::IdString output, int faultNum, connectionStorage *addedInputs, connectionStorage *toplevelSigs)
+	void insertXor(RTLIL::Module *module, RTLIL::Cell *cell, int faultNum, RTLIL::SigSpec *fi_mod)
 	{
+		RTLIL::IdString output;
+		if (cell->hasPort(ID::Q)) {
+				output = ID::Q;
+		} else if (cell->hasPort(ID::Y)) {
+				output = ID::Y;
+		} else {
+			return;
+		}
 		SigSpec sigOutput = cell->getPort(output);
-		log_debug("Modifying cell of type '%s' with size '%u'\n", log_id(cell->type), sigOutput.size());
+		log_debug("Insertig fault injection XOR to cell of type '%s' with size '%u'\n", log_id(cell->type), sigOutput.size());
 
-		Wire *s = addFaultSignal(module, cell, output, faultNum, addedInputs, toplevelSigs);
+		Wire *s = storeFaultSignal(module, cell, output, faultNum, fi_mod);
 		addFiXor(module, cell, output, sigOutput, s);
 	}
 
@@ -190,24 +221,20 @@ struct InsertFIXor : public Pass {
 
 		for (auto module : design->selected_modules())
 		{
-			log_debug("Checking module %s\n", log_id(module));
+			log("Checking module %s\n", log_id(module));
 			int i = 0;
+			RTLIL::SigSpec fi_mod;
 			for (auto cell : module->selected_cells())
 			{
 				// Only operate on standard cells (do not change modules)
 				if (!cell->type.isPublic()) {
-					log_debug("Checking cell %s with type %s\n", log_id(cell), log_id(cell->type));
-					// Check for FF types and then assume all other cells are of type logic
-					if (cell->type.in(RTLIL::builtin_ff_cell_types())) {
-						if (flag_inject_ff) {
-							insertXor(module, cell, ID::Q, i++, &addedInputs, &toplevelSigs);
-						}
-					} else if (flag_inject_logic) {
-						insertXor(module, cell, ID::Y, i++, &addedInputs, &toplevelSigs);
+					if ((flag_inject_ff && cell->type.in(RTLIL::builtin_ff_cell_types())) ||
+						(flag_inject_logic && !cell->type.in(RTLIL::builtin_ff_cell_types()))) {
+							insertXor(module, cell, i++, &fi_mod);
 					}
 				}
 			}
-			module->fixup_ports();
+			addModuleFiInut(module, fi_mod, &addedInputs, &toplevelSigs);
 		}
 		add_toplevel_fi_module(design, &addedInputs, &toplevelSigs, flag_add_fi_input);
 	}
