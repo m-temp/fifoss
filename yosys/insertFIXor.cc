@@ -13,7 +13,7 @@ struct InsertFIXor : public Pass {
 
 	void add_toplevel_fi_module(RTLIL::Design* design, connectionStorage *addedInputs, connectionStorage *toplevelSigs, bool add_input_signal)
 	{
-		log_debug("Updating all modified modules with new fault injection wiring.\n");
+		log_debug("Updating all modified modules with new fault injection wiring: %zu\n", addedInputs->size());
 		connectionStorage work_queue_inputs;
 		int j = 0;
 		while (!addedInputs->empty())
@@ -75,7 +75,7 @@ struct InsertFIXor : public Pass {
 
 		// Connect all signals at the top to a FI module
 		auto top_module = design->top_module();
-		log_debug("Number of fault injection signals: %lu\n", toplevelSigs->size());
+		log_debug("Number of fault injection signals: %lu for top module '%s'\n", toplevelSigs->size(), log_id(top_module));
 		auto figen = design->addModule("\\figenerator");
 		// Connect a single input to all outputs
 		RTLIL::SigSpec passing_signal;
@@ -161,7 +161,6 @@ struct InsertFIXor : public Pass {
 		Wire *xor_input = module->addWire(NEW_ID, cell->getPort(output).size());
 		SigMap sigmap(module);
 		RTLIL::SigSpec outMapped = sigmap(outputSig);
-		log_debug("Mapped signal x: %s\n", log_signal(outMapped));
 		outMapped.replace(outputSig, xor_input);
 		cell->setPort(output, outMapped);
 
@@ -170,7 +169,6 @@ struct InsertFIXor : public Pass {
 		module->connect(outputSig, newOutput);
 		// Output of XOR
 		module->addXor(NEW_ID, s, xor_input, newOutput);
-		log_debug("Mapped signal x: %s\n", log_signal(outMapped));
 	}
 
 	void insertXor(RTLIL::Module *module, RTLIL::Cell *cell, int faultNum, RTLIL::SigSpec *fi_mod)
@@ -221,7 +219,7 @@ struct InsertFIXor : public Pass {
 
 		for (auto module : design->selected_modules())
 		{
-			log("Checking module %s\n", log_id(module));
+			log("Updating module %s\n", log_id(module));
 			int i = 0;
 			RTLIL::SigSpec fi_mod;
 			for (auto cell : module->selected_cells())
