@@ -47,14 +47,14 @@ struct InsertFIXor : public Pass {
 					if (fi_cells.size())
 					{
 						RTLIL::Wire *mod_in = module->addWire(stringf("\\fi_forward_%d", j++), fi_cells.size());
-						if (module != design->top_module())
+						if (!module->get_bool_attribute(ID::top))
 						{
 							// Forward wires to top
 							mod_in->port_input = 1;
 							module->fixup_ports();
 						}
 						module->connect(fi_cells, mod_in);
-						if (module != design->top_module())
+						if (!module->get_bool_attribute(ID::top))
 						{
 							log_debug("Adding signal to forward list as this is not yet at the top: %s\n", log_id(mod_in->name));
 							addedInputs->push_back(std::make_pair(module, mod_in));
@@ -69,12 +69,24 @@ struct InsertFIXor : public Pass {
 			}
 		}
 
+		// Stop if there are no signals to connect
 		if (toplevelSigs->empty()) {
 			return;
 		}
 
 		// Connect all signals at the top to a FI module
-		auto top_module = design->top_module();
+		RTLIL::Module *top_module;
+		for (auto mod : design->modules())
+		{
+			if (mod->get_bool_attribute(ID::top)) {
+				top_module = mod;
+			}
+		}
+		// Stop if no top module can be found
+		if (top_module == nullptr) {
+			return;
+		}
+
 		log_debug("Number of fault injection signals: %lu for top module '%s'\n", toplevelSigs->size(), log_id(top_module));
 		auto figen = design->addModule("\\figenerator");
 		// Connect a single input to all outputs
@@ -123,7 +135,7 @@ struct InsertFIXor : public Pass {
 	Wire *storeFaultSignal(RTLIL::Module *module, RTLIL::Cell *cell, IdString output, int faultNum, RTLIL::SigSpec *fi_mod)
 	{
 		std::string fault_sig_name;
-		if (module == module->design->top_module())
+		if (module->get_bool_attribute(ID::top))
 		{
 			fault_sig_name = stringf("\\fi_%d", faultNum);
 		}
@@ -143,15 +155,19 @@ struct InsertFIXor : public Pass {
 		}
 		Wire *input = module->addWire("\\fi_xor", fi_mod.size());
 		module->connect(fi_mod, input);
-		input->port_input = true;
-		module->fixup_ports();
+		if (!module->get_bool_attribute(ID::top)) {
+			input->port_input = true;
+			module->fixup_ports();
+		}
 		log_debug("Creating module local FI input %s with size %d\n", log_id(input->name), input->width);
-		if (module == module->design->top_module())
+		if (module->get_bool_attribute(ID::top))
 		{
+			log_debug("Adding to top level '%s'\n", log_id(module));
 			toplevelSigs->push_back(std::make_pair(module, input));
 		}
 		else
 		{
+			log_debug("Adding to model input %s\n", log_id(input->name));
 			moduleInputs->push_back(std::make_pair(module, input));
 		}
 	}
@@ -222,6 +238,7 @@ struct InsertFIXor : public Pass {
 			log("Updating module %s\n", log_id(module));
 			int i = 0;
 			RTLIL::SigSpec fi_mod;
+			// Add a Xor cell for each cell in the module
 			for (auto cell : module->selected_cells())
 			{
 				// Only operate on standard cells (do not change modules)
@@ -232,8 +249,10 @@ struct InsertFIXor : public Pass {
 					}
 				}
 			}
+			// Update the module with a port to control all new XOR cells
 			addModuleFiInut(module, fi_mod, &addedInputs, &toplevelSigs);
 		}
+		// Update all modified modules in the design and add wiring to the top
 		add_toplevel_fi_module(design, &addedInputs, &toplevelSigs, flag_add_fi_input);
 	}
 } InsertFIXor;
