@@ -6,8 +6,8 @@
 USING_YOSYS_NAMESPACE
 PRIVATE_NAMESPACE_BEGIN
 
-struct InsertFIXor : public Pass {
-	InsertFIXor() : Pass("insertFIXor") { }
+struct AddFi : public Pass {
+	AddFi() : Pass("AddFi") { }
 
 	typedef std::vector<std::pair<RTLIL::Module*, RTLIL::Wire*>> connectionStorage;
 
@@ -255,6 +255,6 @@ struct InsertFIXor : public Pass {
 		// Update all modified modules in the design and add wiring to the top
 		add_toplevel_fi_module(design, &addedInputs, &toplevelSigs, flag_add_fi_input);
 	}
-} InsertFIXor;
+} AddFi;
 
 PRIVATE_NAMESPACE_END

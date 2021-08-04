@@ -1,6 +1,6 @@
 .PHONY: yosys
 yosys:
-	yosys-config --build build/insertFIXor.so yosys/insertFIXor.cc
+	yosys-config --build build/addFi.so yosys/addFi.cc
 
 .PHONY: clean
 clean:
