@@ -7,7 +7,31 @@ USING_YOSYS_NAMESPACE
 PRIVATE_NAMESPACE_BEGIN
 
 struct AddFi : public Pass {
-	AddFi() : Pass("AddFi") { }
+	AddFi() : Pass("addFi", "add fault injection signals") { }
+
+	void help() override
+	{
+		//   |---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|---v---|
+		log("\n");
+		log("    addFi [-no-ff] [-no-comb] [-no-add-input] [-type <cell>]");
+		log("\n");
+		log("Add a fault injection signal to every selected cell and wire the control signal\n");
+		log("to the top level.\n");
+		log("\n");
+		log("    -no-ff");
+		log("       Do not insert fault cells for flip-flops.\n");
+		log("\n");
+		log("    -no-comb");
+		log("       Do not insert fault cells for combinational cells.\n");
+		log("\n");
+		log("    -no-add-input");
+		log("       Do not add the fault signal bus to the top-level input port.\n");
+		log("\n");
+		log("    -type <cell>");
+		log("       Specify the type of the inserted fault control cell.\n");
+		log("       Possible values are 'or', 'and' and 'xor' (default).\n");
+		log("\n");
+	}
 
 	typedef std::vector<std::pair<RTLIL::Module*, RTLIL::Wire*>> connectionStorage;
 
@@ -100,7 +124,7 @@ struct AddFi : public Pass {
 		for (auto &t : *toplevelSigs)
 		{
 			total_width += t.second->width;
-			// Continous signal number naming
+			// Continuous signal number naming
 			auto fi_o = figen->addWire(stringf("\\fi_%lu", single_signal_num++), t.second);
 			fi_o->port_output = 1;
 			passing_signal.append(fi_o);
@@ -205,8 +229,9 @@ struct AddFi : public Pass {
 			return;
 		}
 		SigSpec sigOutput = cell->getPort(output);
-		log_debug("Insertig fault injection XOR to cell of type '%s' with size '%u'\n", log_id(cell->type), sigOutput.size());
+		log_debug("Inserting fault injection XOR to cell of type '%s' with size '%u'\n", log_id(cell->type), sigOutput.size());
 
+		// Wire for FI signal
 		Wire *s = storeFaultSignal(module, cell, output, faultNum, fi_mod);
 		// Cell for FI control
 		appendFiCell(fi_type, module, cell, output, sigOutput, s);
