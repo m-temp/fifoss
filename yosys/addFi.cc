@@ -216,7 +216,7 @@ struct AddFi : public Pass {
 	{
 		bool flag_add_fi_input = true;
 		bool flag_inject_ff = true;
-		bool flag_inject_logic = true;
+		bool flag_inject_combinational = true;
 		std::string option_fi_type;
 
 		// parse options
@@ -224,15 +224,15 @@ struct AddFi : public Pass {
 		for (argidx = 1; argidx < args.size(); argidx++)
 		{
 			std::string arg = args[argidx];
-			if (arg == "-noff") {
+			if (arg == "-no-ff") {
 				flag_inject_ff = false;
 				continue;
 			}
-			if (arg == "-nologic") {
-				flag_inject_logic = false;
+			if (arg == "-no-comb") {
+				flag_inject_combinational = false;
 				continue;
 			}
-			if (arg == "-nofiinput") {
+			if (arg == "-no-add-input") {
 				flag_add_fi_input = false;
 				continue;
 			}
