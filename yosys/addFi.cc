@@ -172,7 +172,7 @@ struct AddFi : public Pass {
 		}
 	}
 
-	void addFiXor(RTLIL::Module *module, RTLIL::Cell *cell, RTLIL::IdString output, SigSpec outputSig, Wire *s)
+	void appendFiCell(std::string fi_type, RTLIL::Module *module, RTLIL::Cell *cell, RTLIL::IdString output, SigSpec outputSig, Wire *s)
 	{
 		Wire *xor_input = module->addWire(NEW_ID, cell->getPort(output).size());
 		SigMap sigmap(module);
@@ -184,10 +184,17 @@ struct AddFi : public Pass {
 		Wire *newOutput = module->addWire(NEW_ID, cell->getPort(output).size());
 		module->connect(outputSig, newOutput);
 		// Output of XOR
-		module->addXor(NEW_ID, s, xor_input, newOutput);
+		// TODO store module with 's' wire input and replace this with the new big wire 'fi_xor' at the end?
+		if (fi_type.compare("xor") == 0) {
+			module->addXor(NEW_ID, s, xor_input, newOutput);
+		} else if (fi_type.compare("and") == 0) {
+			module->addAnd(NEW_ID, s, xor_input, newOutput);
+		} else if (fi_type.compare("or") == 0) {
+			module->addOr(NEW_ID, s, xor_input, newOutput);
+		}
 	}
 
-	void insertXor(RTLIL::Module *module, RTLIL::Cell *cell, int faultNum, RTLIL::SigSpec *fi_mod)
+	void insertFi(std::string fi_type, RTLIL::Module *module, RTLIL::Cell *cell, int faultNum, RTLIL::SigSpec *fi_mod)
 	{
 		RTLIL::IdString output;
 		if (cell->hasPort(ID::Q)) {
@@ -201,7 +208,8 @@ struct AddFi : public Pass {
 		log_debug("Insertig fault injection XOR to cell of type '%s' with size '%u'\n", log_id(cell->type), sigOutput.size());
 
 		Wire *s = storeFaultSignal(module, cell, output, faultNum, fi_mod);
-		addFiXor(module, cell, output, sigOutput, s);
+		// Cell for FI control
+		appendFiCell(fi_type, module, cell, output, sigOutput, s);
 	}
 
 	void execute(vector<string> args, RTLIL::Design* design) override
@@ -209,6 +217,7 @@ struct AddFi : public Pass {
 		bool flag_add_fi_input = true;
 		bool flag_inject_ff = true;
 		bool flag_inject_logic = true;
+		std::string option_fi_type;
 
 		// parse options
 		size_t argidx;
@@ -227,25 +236,36 @@ struct AddFi : public Pass {
 				flag_add_fi_input = false;
 				continue;
 			}
+			if (arg == "-type") {
+				if (++argidx >= args.size())
+					log_cmd_error("Option -type requires an additional argument!\n");
+				option_fi_type = args[argidx];
+				continue;
+			}
 			break;
 		}
 		extra_args(args, argidx, design);
 
 		connectionStorage addedInputs, toplevelSigs;
 
+		if (option_fi_type.empty())
+		{
+			option_fi_type = "xor";
+		}
+
 		for (auto module : design->selected_modules())
 		{
 			log("Updating module %s\n", log_id(module));
 			int i = 0;
 			RTLIL::SigSpec fi_mod;
-			// Add a Xor cell for each cell in the module
+			// Add a FI cell for each cell in the module
 			for (auto cell : module->selected_cells())
 			{
 				// Only operate on standard cells (do not change modules)
 				if (!cell->type.isPublic()) {
 					if ((flag_inject_ff && cell->type.in(RTLIL::builtin_ff_cell_types())) ||
-						(flag_inject_logic && !cell->type.in(RTLIL::builtin_ff_cell_types()))) {
-							insertXor(module, cell, i++, &fi_mod);
+						(flag_inject_combinational && !cell->type.in(RTLIL::builtin_ff_cell_types()))) {
+							insertFi(option_fi_type, module, cell, i++, &fi_mod);
 					}
 				}
 			}
