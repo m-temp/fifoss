@@ -61,7 +61,7 @@ struct AddFi : public Pass {
 						{
 							// New wire for cell to combine the available signals
 							int cell_width = m.second->width;
-							Wire *s = module->addWire(stringf("\\fault_%s_%d_%s", log_id(c), i++, log_id(m.second->name)), cell_width);
+							Wire *s = module->addWire(stringf("\\fi_%s_%d_%s", log_id(c), i++, log_id(m.second->name)), cell_width);
 							fi_cells.append(s);
 							log_debug("Instance '%s' in '%s' with width '%u', connecting wire '%s' to port '%s'\n",
 									log_id(c), log_id(c->module), cell_width, log_id(s->name), log_id(m.second->name));
