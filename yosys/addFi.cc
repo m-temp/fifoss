@@ -156,29 +156,34 @@ struct AddFi : public Pass {
 		}
 	}
 
-	Wire *storeFaultSignal(RTLIL::Module *module, RTLIL::Cell *cell, IdString output, int faultNum, RTLIL::SigSpec *fi_mod)
+	Wire *storeFaultSignal(RTLIL::Module *module, RTLIL::Cell *cell, IdString output, int faultNum, RTLIL::SigSpec *fi_signal_module)
 	{
-		std::string fault_sig_name;
+		std::string fault_sig_name, sig_type;
+		if (output == ID::Q) {
+			sig_type = "ff";
+		} else if (output == ID::Y) {
+			sig_type = "comb";
+		}
 		if (module->get_bool_attribute(ID::top))
 		{
-			fault_sig_name = stringf("\\fi_%d", faultNum);
+			fault_sig_name = stringf("\\fi_%s_%d", sig_type.c_str(), faultNum);
 		}
 		else
 		{
-			fault_sig_name = stringf("\\fi_%s_%d", log_id(module), faultNum);
+			fault_sig_name = stringf("\\fi_%s_%s_%d", sig_type.c_str(), log_id(module), faultNum);
 		}
 		Wire *s = module->addWire(fault_sig_name, cell->getPort(output).size());
-		fi_mod->append(s);
+		fi_signal_module->append(s);
 		return s;
 	}
 
-	void addModuleFiInut(RTLIL::Module *module, RTLIL::SigSpec fi_mod, connectionStorage *moduleInputs, connectionStorage *toplevelSigs)
+	void addModuleFiInut(RTLIL::Module *module, RTLIL::SigSpec fi_signal_module, std::string fault_input_name, connectionStorage *moduleInputs, connectionStorage *toplevelSigs)
 	{
-		if (!fi_mod.size()) {
+		if (!fi_signal_module.size()) {
 			return;
 		}
-		Wire *input = module->addWire("\\fi_xor", fi_mod.size());
-		module->connect(fi_mod, input);
+		Wire *input = module->addWire(fault_input_name, fi_signal_module.size());
+		module->connect(fi_signal_module, input);
 		if (!module->get_bool_attribute(ID::top)) {
 			input->port_input = true;
 			module->fixup_ports();
@@ -218,7 +223,7 @@ struct AddFi : public Pass {
 		}
 	}
 
-	void insertFi(std::string fi_type, RTLIL::Module *module, RTLIL::Cell *cell, int faultNum, RTLIL::SigSpec *fi_mod)
+	void insertFi(std::string fi_type, RTLIL::Module *module, RTLIL::Cell *cell, int faultNum, RTLIL::SigSpec *fi_signal_module)
 	{
 		RTLIL::IdString output;
 		if (cell->hasPort(ID::Q)) {
@@ -232,7 +237,7 @@ struct AddFi : public Pass {
 		log_debug("Inserting fault injection XOR to cell of type '%s' with size '%u'\n", log_id(cell->type), sigOutput.size());
 
 		// Wire for FI signal
-		Wire *s = storeFaultSignal(module, cell, output, faultNum, fi_mod);
+		Wire *s = storeFaultSignal(module, cell, output, faultNum, fi_signal_module);
 		// Cell for FI control
 		appendFiCell(fi_type, module, cell, output, sigOutput, s);
 	}
@@ -282,20 +287,23 @@ struct AddFi : public Pass {
 		{
 			log("Updating module %s\n", log_id(module));
 			int i = 0;
-			RTLIL::SigSpec fi_mod;
+			RTLIL::SigSpec fi_ff, fi_comb;
 			// Add a FI cell for each cell in the module
 			for (auto cell : module->selected_cells())
 			{
 				// Only operate on standard cells (do not change modules)
 				if (!cell->type.isPublic()) {
-					if ((flag_inject_ff && cell->type.in(RTLIL::builtin_ff_cell_types())) ||
-						(flag_inject_combinational && !cell->type.in(RTLIL::builtin_ff_cell_types()))) {
-							insertFi(option_fi_type, module, cell, i++, &fi_mod);
+					if ((flag_inject_ff && cell->type.in(RTLIL::builtin_ff_cell_types()))) {
+							insertFi(option_fi_type, module, cell, i++, &fi_ff);
+					}
+					if (flag_inject_combinational && !cell->type.in(RTLIL::builtin_ff_cell_types())) {
+							insertFi(option_fi_type, module, cell, i++, &fi_comb);
 					}
 				}
 			}
 			// Update the module with a port to control all new XOR cells
-			addModuleFiInut(module, fi_mod, &addedInputs, &toplevelSigs);
+			addModuleFiInut(module, fi_ff, "\\fi_ff", &addedInputs, &toplevelSigs);
+			addModuleFiInut(module, fi_comb, "\\fi_comb", &addedInputs, &toplevelSigs);
 		}
 		// Update all modified modules in the design and add wiring to the top
 		add_toplevel_fi_module(design, &addedInputs, &toplevelSigs, flag_add_fi_input);
