@@ -16,7 +16,7 @@ struct AddFi : public Pass {
 		log("    addFi [-no-ff] [-no-comb] [-no-add-input] [-type <cell>]");
 		log("\n");
 		log("Add a fault injection signal to every selected cell and wire the control signal\n");
-		log("to the top level.\n");
+		log("to the top-level.\n");
 		log("\n");
 		log("    -no-ff");
 		log("       Do not insert fault cells for flip-flops.\n");
@@ -37,18 +37,18 @@ struct AddFi : public Pass {
 
 	void add_toplevel_fi_module(RTLIL::Design* design, connectionStorage *addedInputs, connectionStorage *toplevelSigs, bool add_input_signal)
 	{
-		log_debug("Updating all modified modules with new fault injection wiring: %zu\n", addedInputs->size());
+		log_debug("Connection clean-up: Initial number of added inputs to forward: %zu\n", addedInputs->size());
 		connectionStorage work_queue_inputs;
 		int j = 0;
 		while (!addedInputs->empty())
 		{
 			work_queue_inputs = *addedInputs;
-			log_debug("Number of modules to update: %zu\n", work_queue_inputs.size());
+			log_debug("Connection clean-up: Current number of inputs to forward: %zu\n", work_queue_inputs.size());
 			addedInputs->clear();
 			for (auto m : work_queue_inputs)
 			{
 				int i = 0;
-				log_debug("Searching for instances of module: '%s' with signal '%s'\n", log_id(m.first), log_signal(m.second));
+				log_debug("Connection clean-up: Searching for instances of module: `%s' with signal `%s'\n", m.first->name.c_str(), log_signal(m.second));
 				// Search in all modules, not search for a specific module in the design, but cells of this type.
 				for (auto module : design->modules())
 				{
@@ -70,8 +70,8 @@ struct AddFi : public Pass {
 							// - Just forward all wires separately (not really nice).
 							Wire *s = module->addWire(stringf("\\fi_%s_%d_%s", log_id(c), i++, log_id(m.second->name)), cell_width);
 							fi_cells.append(s);
-							log_debug("Instance '%s' in '%s' with width '%u', connecting wire '%s' to port '%s'\n",
-									log_id(c), log_id(c->module), cell_width, log_id(s->name), log_id(m.second->name));
+							log_debug("Connection clean-up: Instance `%s' in `%s' with width %u, connecting wire `%s' to port `%s'\n",
+									log_id(c), log_id(c->module), cell_width, log_signal(s), log_signal(m.second));
 							c->setPort(m.second->name, s);
 						}
 					}
@@ -87,12 +87,12 @@ struct AddFi : public Pass {
 						module->connect(fi_cells, mod_in);
 						if (!module->get_bool_attribute(ID::top))
 						{
-							log_debug("Adding signal to forward list as this is not yet at the top: %s\n", log_id(mod_in->name));
+							log_debug("Connection clean-up: Adding `%s' to signal forward list\n", log_id(mod_in->name));
 							addedInputs->push_back(std::make_pair(module, mod_in));
 						}
 						else
 						{
-							log_debug("New input at top level: %s\n", log_signal(mod_in));
+							log_debug("Connection clean-up: Adding signal `%s' to top-level signal list\n", log_signal(mod_in));
 							toplevelSigs->push_back(std::make_pair(module, mod_in));
 						}
 					}
@@ -102,6 +102,7 @@ struct AddFi : public Pass {
 
 		// Stop if there are no signals to connect
 		if (toplevelSigs->empty()) {
+			log_debug("Connection clean-up: No signals at top-level. Sopping.\n");
 			return;
 		}
 
@@ -118,12 +119,13 @@ struct AddFi : public Pass {
 			return;
 		}
 
-		log_debug("Number of fault injection signals: %lu for top module '%s'\n", toplevelSigs->size(), log_id(top_module));
 		// TODO Make it possible to update the figenerator module
 		// This would allow to run the pass more than once for different parts of the design.
 		// This could be useful to run it with different configurations for different parts.
 		// In a successive pass the module should be altered to incorporate the new wires.
+		log_debug("Connection clean-up: Number of signals for top-level module `%s': %lu\n", top_module->name.c_str(), toplevelSigs->size());
 		auto figen = design->addModule("\\figenerator");
+		log_debug("Connection clean-up: Create module `%s'\n", figen->name.c_str());
 		// Connect a single input to all outputs
 		RTLIL::SigSpec passing_signal;
 		size_t single_signal_num = 0;
@@ -141,7 +143,7 @@ struct AddFi : public Pass {
 			passing_signal.append(fi_o);
 			fi_port_list.push_back(std::make_pair(fi_o, t.second));
 		}
-		log_debug("Adding combined input port to figenerator\n");
+		log_debug("Connection clean-up: Adding combined input port to `%s'\n", figen->name.c_str());
 		RTLIL::Wire *fi_combined_in;
 		if (add_input_signal) {
 			fi_combined_in = figen->addWire("\\fi_combined", total_width);
@@ -151,12 +153,14 @@ struct AddFi : public Pass {
 		}
 		figen->fixup_ports();
 
-		auto u_figen = top_module->addCell("\\u_figenerator", "\\figenerator");
+		std::string figen_instance_name = stringf("\\u_%s", log_id(figen->name));
+		auto u_figen = top_module->addCell(figen_instance_name.c_str(), figen->name);
 
 		// Connect output ports
+		log_debug("Connection clean-up: Connecting signals to `%s'\n", figen->name.c_str());
 		for (auto &l : fi_port_list)
 		{
-			log_debug("Connecting signal '%s' to port '%s'\n", log_id(l.second), log_id(l.first));
+			log_debug("Connection clean-up: Connecting signal `%s' to port `%s'\n", log_id(l.second), log_id(l.first));
 			u_figen->setPort(l.first->name, l.second);
 		}
 		if (add_input_signal) {
@@ -164,6 +168,7 @@ struct AddFi : public Pass {
 			top_fi_input->port_input = 1;
 			u_figen->setPort(fi_combined_in->name, top_fi_input);
 			top_module->fixup_ports();
+			log_debug("Connection clean-up: Added input signal `%s'\n", top_fi_input->name.c_str());
 		}
 	}
 
@@ -183,6 +188,7 @@ struct AddFi : public Pass {
 		{
 			fault_sig_name = stringf("\\fi_%s_%s_%d", sig_type.c_str(), log_id(module), faultNum);
 		}
+		log_debug("Module `%s': Adding wire `%s'\n", module->name.c_str(), fault_sig_name.c_str());
 		Wire *s = module->addWire(fault_sig_name, cell->getPort(output).size());
 		fi_signal_module->append(s);
 		return s;
@@ -199,15 +205,15 @@ struct AddFi : public Pass {
 			input->port_input = true;
 			module->fixup_ports();
 		}
-		log_debug("Creating module local FI input %s with size %d\n", log_id(input->name), input->width);
+		log_debug("Module `%s': Adding input `%s' (size: %d)\n", module->name.c_str(), input->name.c_str(), input->width);
 		if (module->get_bool_attribute(ID::top))
 		{
-			log_debug("Adding to top level '%s'\n", log_id(module));
+			log_debug("Module `%s': Adding wire `%s' to top-level signal list\n", module->name.c_str(), log_id(input->name));
 			toplevelSigs->push_back(std::make_pair(module, input));
 		}
 		else
 		{
-			log_debug("Adding to model input %s\n", log_id(input->name));
+			log_debug("Module `%s': Adding wire `%s' to signal forward list\n", module->name.c_str(), log_id(input->name));
 			moduleInputs->push_back(std::make_pair(module, input));
 		}
 	}
@@ -245,7 +251,8 @@ struct AddFi : public Pass {
 			return;
 		}
 		SigSpec sigOutput = cell->getPort(output);
-		log_debug("Inserting fault injection XOR to cell of type '%s' with size '%u'\n", log_id(cell->type), sigOutput.size());
+		log_debug("Module `%s': Inserting fault injection '%s' to cell type `%s' (size: %u)\n",
+				module->name.c_str(), fi_type.c_str(), log_id(cell->type), sigOutput.size());
 
 		// Wire for FI signal
 		Wire *s = storeFaultSignal(module, cell, output, faultNum, fi_signal_module);
@@ -286,7 +293,7 @@ struct AddFi : public Pass {
 			// TODO do not create the figenerator module
 			// Add a argument to prevent the creation of the module.
 			// Two possible ways to handle the signals:
-			//   - Keep them unconnected at the top level (-no-add-input)
+			//   - Keep them unconnected at the top-level (-no-add-input)
 			//   - Create the forwarding bus and add it as an input port
 			// The reason to having this module is an easy access to the bus
 			// for the simulation. One could apply a patch to the HDL part for
@@ -304,10 +311,11 @@ struct AddFi : public Pass {
 
 		for (auto module : design->selected_modules())
 		{
-			log("Updating module %s\n", log_id(module));
+			log("Updating module `%s'\n", module->name.c_str());
 			int i = 0;
 			RTLIL::SigSpec fi_ff, fi_comb;
 			// Add a FI cell for each cell in the module
+			log_debug("Module `%s': Searching for cells to append with fault injection\n", module->name.c_str());
 			for (auto cell : module->selected_cells())
 			{
 				// Only operate on standard cells (do not change modules)
@@ -321,6 +329,7 @@ struct AddFi : public Pass {
 				}
 			}
 			// Update the module with a port to control all new XOR cells
+			log_debug("Module `%s': Updating modules inputs\n", module->name.c_str());
 			addModuleFiInut(module, fi_ff, "\\fi_ff", &addedInputs, &toplevelSigs);
 			addModuleFiInut(module, fi_comb, "\\fi_comb", &addedInputs, &toplevelSigs);
 		}
