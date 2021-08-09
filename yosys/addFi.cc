@@ -61,6 +61,13 @@ struct AddFi : public Pass {
 						{
 							// New wire for cell to combine the available signals
 							int cell_width = m.second->width;
+							// TODO The following wire is not really needed later as it is appended to the SigSpec which is then
+							// connected as a wire to the input.
+							// - The unused wires could be deleted later.
+							// - Find another way to connect the cells to the input.
+							//   - Do not create wires here, but just iterate and store the info, then create the SigSpec and connect it
+							//     on the one end to the input and iterate on the other end for connecting the cells.
+							// - Just forward all wires separately (not really nice).
 							Wire *s = module->addWire(stringf("\\fi_%s_%d_%s", log_id(c), i++, log_id(m.second->name)), cell_width);
 							fi_cells.append(s);
 							log_debug("Instance '%s' in '%s' with width '%u', connecting wire '%s' to port '%s'\n",
