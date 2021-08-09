@@ -69,6 +69,7 @@ struct AddFi : public Pass {
 							//     on the one end to the input and iterate on the other end for connecting the cells.
 							// - Just forward all wires separately (not really nice).
 							Wire *s = module->addWire(stringf("\\fi_%s_%d_%s", log_id(c), i++, log_id(m.second->name)), cell_width);
+							// Collect all signals from all cells to create a single input later
 							fi_cells.append(s);
 							log_debug("Connection clean-up: Instance `%s' in `%s' with width %u, connecting wire `%s' to port `%s'\n",
 									log_id(c), log_id(c->module), cell_width, log_signal(s), log_signal(m.second));
@@ -77,7 +78,8 @@ struct AddFi : public Pass {
 					}
 					if (fi_cells.size())
 					{
-						RTLIL::Wire *mod_in = module->addWire(stringf("\\fi_forward_%d", j++), fi_cells.size());
+						// Create a single signal to all cells
+						RTLIL::Wire *mod_in = module->addWire(stringf("\\fi_forward_%s_%d", log_id(module->name), j++), fi_cells.size());
 						if (!module->get_bool_attribute(ID::top))
 						{
 							// Forward wires to top
