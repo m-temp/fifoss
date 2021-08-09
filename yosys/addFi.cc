@@ -279,6 +279,14 @@ struct AddFi : public Pass {
 				option_fi_type = args[argidx];
 				continue;
 			}
+			// TODO do not create the figenerator module
+			// Add a argument to prevent the creation of the module.
+			// Two possible ways to handle the signals:
+			//   - Keep them unconnected at the top level (-no-add-input)
+			//   - Create the forwarding bus and add it as an input port
+			// The reason to having this module is an easy access to the bus
+			// for the simulation. One could apply a patch to the HDL part for
+			// some DPI functions which can then be used by the simulation.
 			break;
 		}
 		extra_args(args, argidx, design);
