@@ -119,6 +119,10 @@ struct AddFi : public Pass {
 		}
 
 		log_debug("Number of fault injection signals: %lu for top module '%s'\n", toplevelSigs->size(), log_id(top_module));
+		// TODO Make it possible to update the figenerator module
+		// This would allow to run the pass more than once for different parts of the design.
+		// This could be useful to run it with different configurations for different parts.
+		// In a successive pass the module should be altered to incorporate the new wires.
 		auto figen = design->addModule("\\figenerator");
 		// Connect a single input to all outputs
 		RTLIL::SigSpec passing_signal;
