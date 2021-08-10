@@ -41,11 +41,13 @@ endef
 
 # Target to execute all tests
 .PHONY: test
-test: yosys flipflop minimal_mixed
+test: yosys flipflop minimal_mixed cell_type
 
 flipflop: flipflop_orig flipflop_clean flipflop_ff flipflop_comb
 
 minimal_mixed: minimal_mixed_orig minimal_mixed_ff minimal_mixed_comb
+
+cell_type: cell_type_orig cell_type_and cell_type_or cells2_type_orig cells2_type_and cells2_type_or
 
 # Target to run tests separately, make sure to create/update the Yosys module
 # first.
@@ -64,6 +66,19 @@ minimal_mixed_ff: tests/minimal_mixed.sv
 	$(call yosys_standard,$<,$@,-no-comb)
 minimal_mixed_comb: tests/minimal_mixed.sv
 	$(call yosys_standard,$<,$@,-no-ff)
+
+cell_type_orig: tests/cell.sv
+	$(call yosys_standard,$<,$@)
+cell_type_and: tests/cell.sv
+	$(call yosys_standard,$<,$@,-type and)
+cell_type_or: tests/cell.sv
+	$(call yosys_standard,$<,$@,-type or)
+cells2_type_orig: tests/cells2.sv
+	$(call yosys_standard,$<,$@)
+cells2_type_and: tests/cell.sv
+	$(call yosys_standard,$<,$@,-type and)
+cells2_type_or: tests/cell.sv
+	$(call yosys_standard,$<,$@,-type or)
 
 .PHONY: clean
 clean:
