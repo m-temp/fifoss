@@ -1,3 +1,7 @@
+########
+# Config
+########
+
 BUILD_OUT=build
 YOSYS_SRC := yosys/addFi.cc
 YOSYS_MODULE := $(patsubst yosys/%.cc,$(BUILD_OUT)/%.so,$(YOSYS_SRC))
@@ -12,10 +16,18 @@ else
 	YOSYS_SHELL_OR_LOG = > $(BUILD_OUT)/$(2).log
 endif
 
+#######
+# Build
+#######
+
 .PHONY: yosys
 yosys: $(YOSYS_MODULE)
 $(YOSYS_MODULE):
 	yosys-config --build $@ yosys/addFi.cc
+
+######
+# Test
+######
 
 # Variable to execute Yosys tests
 # Arguments:
