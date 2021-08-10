@@ -83,7 +83,7 @@ struct AddFi : public Pass {
 						if (!module->get_bool_attribute(ID::top))
 						{
 							// Forward wires to top
-							mod_in->port_input = 1;
+							mod_in->port_input = true;
 							module->fixup_ports();
 						}
 						module->connect(fi_cells, mod_in);
@@ -149,7 +149,7 @@ struct AddFi : public Pass {
 		RTLIL::Wire *fi_combined_in;
 		if (add_input_signal) {
 			fi_combined_in = figen->addWire("\\fi_combined", total_width);
-			fi_combined_in->port_input = 1;
+			fi_combined_in->port_input = true;
 			RTLIL::SigSpec input_port(fi_combined_in);
 			figen->connect(passing_signal, input_port);
 		}
@@ -167,7 +167,7 @@ struct AddFi : public Pass {
 		}
 		if (add_input_signal) {
 			auto top_fi_input = top_module->addWire("\\fi_combined", total_width);
-			top_fi_input->port_input = 1;
+			top_fi_input->port_input = true;
 			u_figen->setPort(fi_combined_in->name, top_fi_input);
 			top_module->fixup_ports();
 			log_debug("Connection clean-up: Added input signal `%s'\n", top_fi_input->name.c_str());
