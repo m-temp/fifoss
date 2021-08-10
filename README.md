@@ -58,7 +58,7 @@ Call a specific test
 For each test various output files are created and stored in the `build`
 directory.
 - Verilog file after inserting the fault injection logic
-- Graph of the top-level module (can be viewed with 'xdod')
+- Graph of the top-level module (can be viewed with 'xdot')
 - Log output from Yosys
 
 To further investigate a specific test (or all) the variable `YOSYS_SHELL` can
