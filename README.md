@@ -53,7 +53,7 @@ Run all tests with
 
 Call a specific test
 
-    $ make flipflop
+    $ make flipflop_orig
 
 For each test various output files are created and stored in the `build`
 directory.
