@@ -55,7 +55,7 @@ endef
 .PHONY: test
 test: yosys flipflop minimal_mixed cell_type top_level_fi
 
-flipflop: flipflop_orig flipflop_clean flipflop_ff flipflop_comb flipflop_no_input
+flipflop: flipflop_orig flipflop_orig_opt flipflop_clean flipflop_ff flipflop_comb flipflop_no_input
 
 minimal_mixed: minimal_mixed_orig minimal_mixed_ff minimal_mixed_comb
 
@@ -67,6 +67,9 @@ top_level_fi: top_level_fi_orig top_level_fi_select
 # first.
 flipflop_orig: tests/flipflop.sv
 	$(call yosys_standard,$<,$@)
+# Optimization can change the introduced fault type (ff/comb)
+flipflop_orig_opt: tests/flipflop.sv
+	$(call yosys_standard,$<,$@,,-p 'opt -nodffe')
 flipflop_clean: tests/flipflop.sv
 	$(call yosys_standard,$<,$@,-type xor,-p 'clean',-p 'clean')
 flipflop_ff: tests/flipflop.sv
