@@ -53,13 +53,15 @@ endef
 
 # Target to execute all tests
 .PHONY: test
-test: yosys flipflop minimal_mixed cell_type
+test: yosys flipflop minimal_mixed cell_type top_level_fi
 
 flipflop: flipflop_orig flipflop_clean flipflop_ff flipflop_comb flipflop_no_input
 
 minimal_mixed: minimal_mixed_orig minimal_mixed_ff minimal_mixed_comb
 
 cell_type: cell_type_orig cell_type_and cell_type_or cells2_type_orig cells2_type_and cells2_type_or
+
+top_level_fi: top_level_fi_orig top_level_fi_select
 
 # Target to run tests separately, make sure to create/update the Yosys module
 # first.
@@ -93,6 +95,12 @@ cells2_type_and: tests/cell.sv
 	$(call yosys_standard,$<,$@,-type and)
 cells2_type_or: tests/cell.sv
 	$(call yosys_standard,$<,$@,-type or)
+
+top_level_fi_orig: tests/top_level_combined.sv
+	$(call yosys_standard,$<,$@)
+# Only insert the fault injection in module 'third'
+top_level_fi_select: tests/top_level_combined.sv
+	$(call yosys_standard,$<,$@,,-p 'select third')
 
 .PHONY: clean
 clean:
