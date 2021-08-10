@@ -34,3 +34,26 @@ An example flow could look similar to this:
 
 To show more information about what is happening, print the debug messages:
     yosys> debug addFi
+
+### Tests
+A few simple SystemVerilog test cases exists to investigate and visualize
+the behaviour of `addFi`.
+*There is no check for correctness.*
+If there is an error in the `addFi` pass it might however create a failure
+when running the tests.
+
+Run all tests with
+    $ make test
+
+Call a specific test
+    $ make flipflop
+
+For each test various output files are created and stored in the `build`
+directory.
+- Verilog file after inserting the fault injection logic
+- Graph of the top-level module (can be viewed with 'xdod')
+- Log output from Yosys
+
+To further investigate a specific test (or all) the environment variable
+`YOSYS_SHELL` can be set to start a Yosys shell after the run instead of
+creating the log output file.
