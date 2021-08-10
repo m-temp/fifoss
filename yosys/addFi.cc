@@ -204,19 +204,16 @@ struct AddFi : public Pass {
 		Wire *input = module->addWire(fault_input_name, fi_signal_module.size());
 		module->connect(fi_signal_module, input);
 		if (!module->get_bool_attribute(ID::top)) {
+			log_debug("Module `%s': Adding input `%s' (size: %d)\n", module->name.c_str(), input->name.c_str(), input->width);
 			input->port_input = true;
 			module->fixup_ports();
-		}
-		log_debug("Module `%s': Adding input `%s' (size: %d)\n", module->name.c_str(), input->name.c_str(), input->width);
-		if (module->get_bool_attribute(ID::top))
-		{
-			log_debug("Module `%s': Adding wire `%s' to top-level signal list\n", module->name.c_str(), log_id(input->name));
-			toplevelSigs->push_back(std::make_pair(module, input));
+			log_debug("Module `%s': Adding wire `%s' to signal forward list\n", module->name.c_str(), log_id(input->name));
+			moduleInputs->push_back(std::make_pair(module, input));
 		}
 		else
 		{
-			log_debug("Module `%s': Adding wire `%s' to signal forward list\n", module->name.c_str(), log_id(input->name));
-			moduleInputs->push_back(std::make_pair(module, input));
+			log_debug("Module `%s': Adding wire `%s' to top-level signal list\n", module->name.c_str(), log_id(input->name));
+			toplevelSigs->push_back(std::make_pair(module, input));
 		}
 	}
 
