@@ -41,15 +41,23 @@ endef
 
 # Target to execute all tests
 .PHONY: test
-test: yosys fi_simple fi_clean
+test: yosys flipflop_all
+
+flipflop_all: flipflop flipflop_clean flipflop_ff flipflop_comb
 
 # Target to run tests separately, make sure to create/update the Yosys module
 # first.
-fi_simple: tests/fi.sv
+flipflop: tests/flipflop.sv
 	$(call yosys_standard,$<,$@)
 
-fi_clean: tests/fi.sv
+flipflop_clean: tests/flipflop.sv
 	$(call yosys_standard,$<,$@,-type xor,-p 'clean',-p 'clean')
+
+flipflop_ff: tests/flipflop.sv
+	$(call yosys_standard,$<,$@,-no-comb)
+
+flipflop_comb: tests/flipflop.sv
+	$(call yosys_standard,$<,$@,-no-ff)
 
 .PHONY: clean
 clean:
