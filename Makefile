@@ -33,7 +33,7 @@ define yosys_standard
 		-p 'debug addFi'\
 		$(4)\
 		-p 'dump'\
-		-p 'write_verilog $(2).v'\
+		-p 'write_verilog $(BUILD_OUT)/$(2).v'\
 		$(YOSYS_SHELL_OR_LOG)
 endef
 
