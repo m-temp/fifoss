@@ -61,6 +61,8 @@ directory.
 - Graph of the top-level module (can be viewed with 'xdod')
 - Log output from Yosys
 
-To further investigate a specific test (or all) the environment variable
-`YOSYS_SHELL` can be set to start a Yosys shell after the run instead of
-creating the log output file.
+To further investigate a specific test (or all) the variable `YOSYS_SHELL` can
+be set to start a Yosys shell after the run instead of creating the log output
+file.
+
+    $ make flipflop_orig_opt YOSYS_SHELL=1
