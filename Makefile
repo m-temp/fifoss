@@ -41,22 +41,28 @@ endef
 
 # Target to execute all tests
 .PHONY: test
-test: yosys flipflop_all
+test: yosys flipflop minimal_mixed
 
-flipflop_all: flipflop flipflop_clean flipflop_ff flipflop_comb
+flipflop: flipflop_orig flipflop_clean flipflop_ff flipflop_comb
+
+minimal_mixed: minimal_mixed_orig minimal_mixed_ff minimal_mixed_comb
 
 # Target to run tests separately, make sure to create/update the Yosys module
 # first.
-flipflop: tests/flipflop.sv
+flipflop_orig: tests/flipflop.sv
 	$(call yosys_standard,$<,$@)
-
 flipflop_clean: tests/flipflop.sv
 	$(call yosys_standard,$<,$@,-type xor,-p 'clean',-p 'clean')
-
 flipflop_ff: tests/flipflop.sv
 	$(call yosys_standard,$<,$@,-no-comb)
-
 flipflop_comb: tests/flipflop.sv
+	$(call yosys_standard,$<,$@,-no-ff)
+
+minimal_mixed_orig: tests/minimal_mixed.sv
+	$(call yosys_standard,$<,$@)
+minimal_mixed_ff: tests/minimal_mixed.sv
+	$(call yosys_standard,$<,$@,-no-comb)
+minimal_mixed_comb: tests/minimal_mixed.sv
 	$(call yosys_standard,$<,$@,-no-ff)
 
 .PHONY: clean
