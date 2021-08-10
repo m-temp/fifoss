@@ -55,7 +55,7 @@ endef
 .PHONY: test
 test: yosys flipflop minimal_mixed cell_type
 
-flipflop: flipflop_orig flipflop_clean flipflop_ff flipflop_comb
+flipflop: flipflop_orig flipflop_clean flipflop_ff flipflop_comb flipflop_no_input
 
 minimal_mixed: minimal_mixed_orig minimal_mixed_ff minimal_mixed_comb
 
@@ -71,6 +71,8 @@ flipflop_ff: tests/flipflop.sv
 	$(call yosys_standard,$<,$@,-no-comb)
 flipflop_comb: tests/flipflop.sv
 	$(call yosys_standard,$<,$@,-no-ff)
+flipflop_no_input: tests/flipflop.sv
+	$(call yosys_standard,$<,$@,-no-add-input)
 
 minimal_mixed_orig: tests/minimal_mixed.sv
 	$(call yosys_standard,$<,$@)
