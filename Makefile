@@ -34,6 +34,7 @@ define yosys_standard
 		$(4)\
 		-p 'dump'\
 		-p 'write_verilog $(BUILD_OUT)/$(2).v'\
+		-p 'show -prefix $(BUILD_OUT)/$(2) -format dot top'\
 		$(YOSYS_SHELL_OR_LOG)
 endef
 
