@@ -117,6 +117,9 @@ struct AddFi : public Pass {
 			}
 		}
 		// Stop if no top module can be found
+		// TODO Allow to proceed here
+		// Either find a way to follow the hierarchy or just update the modules without
+		// reconnecting all cells.
 		if (top_module == nullptr) {
 			return;
 		}
