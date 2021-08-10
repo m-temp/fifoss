@@ -20,9 +20,14 @@ endif
 # Build
 #######
 
+all: yosys
+
+$(BUILD_OUT):
+	@mkdir -p $@
+
 .PHONY: yosys
 yosys: $(YOSYS_MODULE)
-$(YOSYS_MODULE):
+$(YOSYS_MODULE): | $(BUILD_OUT)
 	yosys-config --build $@ yosys/addFi.cc
 
 ######
@@ -107,4 +112,4 @@ top_level_fi_select: tests/top_level_combined.sv
 
 .PHONY: clean
 clean:
-	rm -f $(BUILD_OUT)/*
+	rm -rf $(BUILD_OUT)
