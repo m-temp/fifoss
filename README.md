@@ -7,9 +7,14 @@ Framework to inject faults into netlists.
 The Yosys pass `addFi` changes a design by inserting additional logic to
 selected cells and forwards control signals to the top-level module.
 
+### Requirements
+
+- Yosys: install with development files, `yosys-config` is needed.
+Install from source is the preferred approach.
+
 ### Building
 
-In order to create the Yosys module, install Yosys and then run:
+In order to create the Yosys module run:
 
     $ make yosys
 
