@@ -43,7 +43,7 @@ example_verilator_simple_build:
 	fusesoc --cores-root . run --target=sim --setup --build towoe:fifoss:example_verilator_simple
 
 example_verilator_simple_run:
-	./build/towoe_fifoss_example_verilator_simple_0.1/sim-verilator/Vtop
+	./build/towoe_fifoss_example_verilator_simple_0.1/sim-verilator/Vtb
 
 .PHONY: clean
 clean:

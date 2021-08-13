@@ -4,7 +4,7 @@
 #include <verilated.h>
 #include <verilated_vcd_c.h>
 
-#include "Vtop.h"
+#include "Vtb.h"
 
 int main(int argc, char *argv[], char **env) {
 
@@ -14,7 +14,7 @@ int main(int argc, char *argv[], char **env) {
 
   cp->commandArgs(argc, argv);
 
-  const std::unique_ptr<Vtop> top{new Vtop{cp.get(), "TOP"}};
+  const std::unique_ptr<Vtb> top{new Vtb{cp.get(), "TOP"}};
 
   top->clk = 0;
   top->rst = 1;
