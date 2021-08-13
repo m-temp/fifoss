@@ -1,0 +1,24 @@
+CAPI=2:
+name: "towoe:fifoss:example_verilator_simple:0.1"
+description: "Simple verilator example"
+filesets:
+  files_sim:
+    files:
+      - rtl/top.sv
+      - cpp/top.cc: { file_type: cppSource }
+    file_type: systemVerilogSource
+
+targets:
+  sim:
+    default_tool: verilator
+    filesets:
+      - files_sim
+    toplevel: top
+    tools:
+      verilator:
+        mode: cc
+        verilator_options:
+          - '--trace'
+          - '--public'
+          - '-CFLAGS "-std=c++11 -g -O0"'
+          - '-Wno-fatal'
