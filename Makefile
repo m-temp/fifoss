@@ -36,6 +36,15 @@ yosys: $(YOSYS_MODULE)
 $(YOSYS_MODULE): $(YOSYS_SRC) | $(YOSYS_BUILD_DIR)
 	yosys-config --build $@ $<
 
+
+example_verilator_simple: example_verilator_simple_build example_verilator_simple_run
+
+example_verilator_simple_build:
+	fusesoc --cores-root . run --target=sim --setup --build towoe:fifoss:example_verilator_simple
+
+example_verilator_simple_run:
+	./build/towoe_fifoss_example_verilator_simple_0.1/sim-verilator/Vtop
+
 .PHONY: clean
 clean:
 	rm -rf $(OUT_DIR)
