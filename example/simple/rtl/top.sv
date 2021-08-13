@@ -1,7 +1,8 @@
 module top (
   input var logic clk,
-  input var logic rst
-
+  input var logic rst,
+  input var logic count,
+  output var logic done
 );
   (*keep*) logic a;
 
@@ -16,10 +17,11 @@ module top (
   always_ff @(posedge clk) begin
     if (rst) begin
       finish_cnt <= '0;
+      done <= 1'b0;
     end else begin
       if (finish_cnt >= 8) begin
-        $finish();
-      end else begin
+        done <= 1'b1;
+      end else if (count) begin
         finish_cnt <= finish_cnt + 1;
       end
     end

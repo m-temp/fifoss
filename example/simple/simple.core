@@ -4,6 +4,7 @@ description: "Simple verilator example"
 filesets:
   files_sim:
     files:
+      - rtl/tb.sv
       - rtl/top.sv
       - cpp/top.cc: { file_type: cppSource }
     file_type: systemVerilogSource
@@ -13,7 +14,7 @@ targets:
     default_tool: verilator
     filesets:
       - files_sim
-    toplevel: top
+    toplevel: tb
     tools:
       verilator:
         mode: cc
