@@ -39,11 +39,14 @@ $(YOSYS_MODULE): $(YOSYS_SRC) | $(YOSYS_BUILD_DIR)
 
 example_verilator_simple: example_verilator_simple_build example_verilator_simple_run
 
-example_verilator_simple_build:
+example_verilator_simple_build: example_verilator_simple_fi
 	fusesoc --cores-root . run --target=sim --setup --build towoe:fifoss:example_verilator_simple
 
 example_verilator_simple_run:
-	./build/towoe_fifoss_example_verilator_simple_0.1/sim-verilator/Vtb
+	./build/towoe_fifoss_example_verilator_simple_0.1/sim-verilator/Vtop
+
+example_verilator_simple_fi: $(YOSYS_MODULE)
+	cd example/simple/ && yosys -m $(realpath $(YOSYS_MODULE)) -c ./tcl/yosys_fi.tcl
 
 .PHONY: clean
 clean:
