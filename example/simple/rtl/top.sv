@@ -19,10 +19,10 @@ module top (
       finish_cnt <= '0;
       done <= 1'b0;
     end else begin
-      if (finish_cnt >= 8) begin
+      if (finish_cnt >= 8'd8) begin
         done <= 1'b1;
       end else if (count) begin
-        finish_cnt <= finish_cnt + 1;
+        finish_cnt <= finish_cnt + 8'd1;
       end
     end
   end
