@@ -9,8 +9,15 @@ selected cells and forwards control signals to the top-level module.
 
 ### Requirements
 
-- Yosys: install with development files, `yosys-config` is needed.
-Install from source is the preferred approach.
+Yosys, together with with the development files must be installed.
+To create the module the binary `yosys-config` must be available.
+This module uses current features of Yosys.
+Installation from a recent source is advisable.
+The preferred compiler for Yosys is Clang.
+Tested with:
+
+    $ yosys --version
+    Yosys 0.9+4274 (git sha1 e6dd4db0a, clang 12.0.1 -fPIC -Os)
 
 ### Building
 
