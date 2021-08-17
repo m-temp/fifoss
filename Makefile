@@ -29,8 +29,8 @@ $(BUILD_OUT):
 
 .PHONY: yosys
 yosys: $(YOSYS_MODULE)
-$(YOSYS_MODULE): | $(BUILD_OUT)
-	yosys-config --build $@ yosys/addFi.cc
+$(YOSYS_MODULE): $(YOSYS_SRC) | $(BUILD_OUT)
+	yosys-config --build $@ $<
 
 .PHONY: clean
 clean:
