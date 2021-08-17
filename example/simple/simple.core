@@ -1,8 +1,10 @@
 CAPI=2:
 name: "towoe:fifoss:example_verilator_simple:0.1"
-description: "Simple verilator example"
+description: "Simple verilator example utilizing fault injection"
 filesets:
   files_sim:
+    depend:
+      - towoe:fifoss:verilator_fi_ctrl
     files:
       - rtl/top_fi.v
       - cpp/top.cc: { file_type: cppSource }
