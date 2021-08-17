@@ -19,14 +19,14 @@ define yosys_standard
 		-p 'debug addFi $(3)'\
 		$(5)\
 		-p 'dump'\
-		-p 'write_verilog $(BUILD_OUT)/$(2).v'\
-		-p 'show -prefix $(BUILD_OUT)/$(2) -format dot top'\
+		-p 'write_verilog $(YOSYS_TEST_OUT)/$(2).v'\
+		-p 'show -prefix $(YOSYS_TEST_OUT)/$(2) -format dot top'\
 		$(YOSYS_SHELL_OR_LOG)
 endef
 
 # Target to execute all tests
 .PHONY: test-yosys
-test-yosys: | $(BUILD_OUT) yosys flipflop minimal_mixed cell_type top_level_fi
+test-yosys: | $(YOSYS_TEST_OUT) yosys flipflop minimal_mixed cell_type top_level_fi
 
 flipflop: flipflop_orig flipflop_orig_opt flipflop_clean flipflop_ff flipflop_comb flipflop_no_input
 
