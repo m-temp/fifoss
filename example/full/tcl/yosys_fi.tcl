@@ -1,0 +1,7 @@
+yosys "read_verilog -sv rtl/top.sv"
+yosys "hierarchy -check -top top"
+yosys "proc"
+yosys "clean"
+yosys "addFi"
+yosys "clean"
+yosys "write_verilog rtl/top_fi.v"
