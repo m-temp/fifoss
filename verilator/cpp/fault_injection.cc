@@ -39,3 +39,27 @@ bool FaultInjection::Injected() {
 void FaultInjection::SaveToLog(std::ofstream &olog) {
       olog << active_fault.temporal << "," << active_fault.spatial << std::endl;
 }
+
+void FaultInjection::AddAbortWatch(CData *signal, unsigned int delay, bool positive_polarity) {
+  abort_watch.push_back(abortWatch{signal, positive_polarity, delay, false});
+}
+
+bool FaultInjection::StopRequested() {
+  // Check for an abort signal
+  for (auto a = abort_watch.begin(); a != abort_watch.end(); ++a) {
+    // Store a signal assertion
+    if (*a->signal == a->positive_polarity) {
+      a->asserted = true;
+    }
+    if (a->asserted) {
+      // After a signal is asserted, wait for 'delay' cycles before signalling
+      // the stop request
+      if (a->delay > 0) {
+        a->delay--;
+      } else {
+        return true;
+      }
+    }
+  }
+  return false;
+}
