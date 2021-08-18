@@ -1,0 +1,26 @@
+CAPI=2:
+name: "towoe:fifoss:example_verilator_full:0.1"
+description: "Verilator example utilizing all fault injection features"
+filesets:
+  files_sim:
+    depend:
+      - towoe:fifoss:verilator_fi_ctrl
+    files:
+      - rtl/top_fi.v
+      - cpp/top.cc: { file_type: cppSource }
+    file_type: systemVerilogSource
+
+targets:
+  sim:
+    default_tool: verilator
+    filesets:
+      - files_sim
+    toplevel: top
+    tools:
+      verilator:
+        mode: cc
+        verilator_options:
+          - '--trace'
+          - '--public'
+          - '-CFLAGS "-std=c++11 -g -O0"'
+          - '-Wno-fatal'
