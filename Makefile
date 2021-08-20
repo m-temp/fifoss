@@ -37,6 +37,8 @@ $(YOSYS_MODULE): $(YOSYS_SRC) | $(YOSYS_BUILD_DIR)
 	yosys-config --build $@ $<
 
 
+example_verilator: example_verilator_simple example_verilator_full
+
 example_verilator_simple: example_verilator_simple_build example_verilator_simple_run
 
 example_verilator_simple_build: example_verilator_simple_fi
