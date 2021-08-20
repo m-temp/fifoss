@@ -62,5 +62,16 @@ bool FaultInjection::StopRequested() {
       }
     }
   }
+
+  // Compare current values against comparison list
+  for (auto m : monitor_list) {
+    if (m()) {
+      return true;
+    }
+  }
   return false;
+}
+
+void FaultInjection::AddValueComparator(std::function<bool ()>& fs) {
+  monitor_list.push_back(fs);
 }

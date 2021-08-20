@@ -8,25 +8,20 @@
 #include <verilated.h>
 
 struct fault {
-	int temporal;
-	int spatial;
+  int temporal;
+  int spatial;
 };
 
 struct abortWatch {
-	CData *signal;
-	bool positive_polarity;
-	unsigned int delay;
-	bool asserted;
-};
-
-struct compareValue {
-  uint8_t *original;
-  std::vector<uint8_t> check;
+  CData *signal;
+  bool positive_polarity;
+  unsigned int delay;
+  bool asserted;
 };
 
 struct temporal {
-	int start;
-	int duration;
+  int start;
+  int duration;
 };
 
 class FaultInjection {
@@ -64,9 +59,17 @@ class FaultInjection {
     /**
      * Convey a request to stop the simulation.
      *
-     * This is triggered by an assertion of an abort signal, see `AddAbortWatch`.
+     * This is triggered by an assertion of an abort signal, see `AddAbortWatch`, and
+     * by a positive data comparsion from the values added by `AddValueComparator`.
      */
     bool StopRequested(void);
+
+    /**
+     * Add a design source and values to check against each cycle.
+     *
+     * Values are compared in `StopRequested`.
+     */
+    void AddValueComparator(std::function<bool ()>&);
 
     /**
      * Check if a fault has been injected.
@@ -89,6 +92,7 @@ class FaultInjection {
     unsigned long cycle_count;
     struct fault active_fault;
     std::vector<struct abortWatch> abort_watch;
+    std::vector<std::function<bool ()>> monitor_list;
 };
 
 /* Fault injection for signals with a width < 65 */
