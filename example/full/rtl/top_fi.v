@@ -2,217 +2,304 @@
 
 module figenerator(fi_0, fi_1, fi_combined);
   output [6:0] fi_0;
-  output [36:0] fi_1;
-  input [43:0] fi_combined;
-  assign fi_1 = fi_combined[43:7];
+  output [91:0] fi_1;
+  input [98:0] fi_combined;
+  assign fi_1 = fi_combined[98:7];
   assign fi_0 = fi_combined[6:0];
 endmodule
 
 (* top =  1  *)
-(* src = "rtl/top.sv:1.1-80.10" *)
-module top(clk, rst, start_i, alert_o, done_o, fi_combined);
-  (* src = "rtl/top.sv:68.3-78.16" *)
-  wire [3:0] _00_;
+(* src = "rtl/top.sv:1.1-102.10" *)
+module top(clk, rst, start_i, data_o, secret_o, alert_o, done_o, fi_combined);
+  (* src = "rtl/top.sv:90.3-100.16" *)
+  wire [3:0] _000_;
   (* src = "rtl/top.sv:0.0-0.0" *)
-  wire [2:0] _01_;
+  wire [2:0] _001_;
   (* src = "rtl/top.sv:0.0-0.0" *)
-  wire [2:0] _02_;
-  (* src = "rtl/top.sv:73.15-73.25" *)
-  wire [3:0] _03_;
-  wire _04_;
-  wire _05_;
-  wire _06_;
-  wire _07_;
-  wire _08_;
-  wire [3:0] _09_;
-  wire [3:0] _10_;
-  wire _11_;
-  reg [3:0] _12_;
-  reg [2:0] _13_;
-  wire [2:0] _14_;
-  wire [2:0] _15_;
-  wire _16_;
-  wire [2:0] _17_;
-  wire [2:0] _18_;
-  wire _19_;
-  wire [2:0] _20_;
-  wire _21_;
-  wire _22_;
-  wire _23_;
-  wire _24_;
-  wire _25_;
-  wire _26_;
-  wire _27_;
-  wire _28_;
-  wire _29_;
-  wire _30_;
-  wire [2:0] _31_;
-  wire _32_;
-  wire [2:0] _33_;
-  wire _34_;
-  wire _35_;
-  wire _36_;
-  wire _37_;
-  wire _38_;
-  wire _39_;
-  (* src = "rtl/top.sv:5.20-5.27" *)
+  wire [2:0] _002_;
+  (* src = "rtl/top.sv:95.15-95.25" *)
+  wire [3:0] _003_;
+  wire [2:0] _004_;
+  wire [2:0] _005_;
+  wire _006_;
+  wire [7:0] _007_;
+  wire _008_;
+  wire _009_;
+  wire _010_;
+  wire _011_;
+  wire [2:0] _012_;
+  wire _013_;
+  wire _014_;
+  wire _015_;
+  wire _016_;
+  wire _017_;
+  wire _018_;
+  wire _019_;
+  wire _020_;
+  wire _021_;
+  wire _022_;
+  wire _023_;
+  wire _024_;
+  wire [31:0] _025_;
+  wire _026_;
+  wire [3:0] _027_;
+  wire [3:0] _028_;
+  wire _029_;
+  wire _030_;
+  reg [3:0] _031_;
+  reg [2:0] _032_;
+  wire [7:0] _033_;
+  wire [2:0] _034_;
+  wire [2:0] _035_;
+  wire _036_;
+  wire [2:0] _037_;
+  wire _038_;
+  wire _039_;
+  wire _040_;
+  wire _041_;
+  wire _042_;
+  wire _043_;
+  wire _044_;
+  wire _045_;
+  wire _046_;
+  wire _047_;
+  wire _048_;
+  wire _049_;
+  wire _050_;
+  wire _051_;
+  wire _052_;
+  wire _053_;
+  wire _054_;
+  wire [2:0] _055_;
+  wire _056_;
+  (* src = "rtl/top.sv:7.28-7.35" *)
   output alert_o;
-  (* src = "rtl/top.sv:2.19-2.22" *)
+  (* src = "rtl/top.sv:2.28-2.31" *)
   input clk;
-  (* src = "rtl/top.sv:18.15-18.18" *)
+  (* src = "rtl/top.sv:21.15-21.18" *)
   wire [3:0] cnt;
-  (* src = "rtl/top.sv:6.20-6.26" *)
+  (* src = "rtl/top.sv:23.15-23.19" *)
+  wire [7:0] data;
+  (* src = "rtl/top.sv:5.28-5.34" *)
+  output [7:0] data_o;
+  (* src = "rtl/top.sv:8.28-8.34" *)
   output done_o;
-  wire [36:0] fi_comb;
+  wire [91:0] fi_comb;
   wire [3:0] fi_comb_0;
   wire fi_comb_1;
   wire [2:0] fi_comb_10;
   wire fi_comb_11;
-  wire fi_comb_12;
+  wire [7:0] fi_comb_12;
   wire fi_comb_13;
   wire fi_comb_14;
   wire fi_comb_15;
   wire fi_comb_16;
-  wire fi_comb_17;
+  wire [2:0] fi_comb_17;
   wire fi_comb_18;
   wire fi_comb_19;
+  wire fi_comb_2;
   wire fi_comb_20;
   wire fi_comb_21;
-  wire [3:0] fi_comb_22;
-  wire [2:0] fi_comb_4;
-  wire [2:0] fi_comb_5;
-  wire fi_comb_6;
+  wire fi_comb_22;
+  wire fi_comb_23;
+  wire fi_comb_24;
+  wire fi_comb_25;
+  wire fi_comb_26;
+  wire fi_comb_27;
+  wire fi_comb_28;
+  wire fi_comb_29;
+  wire [31:0] fi_comb_30;
+  wire fi_comb_31;
+  wire [3:0] fi_comb_32;
+  wire [7:0] fi_comb_5;
+  wire [2:0] fi_comb_6;
   wire [2:0] fi_comb_7;
-  wire [2:0] fi_comb_8;
-  wire fi_comb_9;
-  input [43:0] fi_combined;
+  wire fi_comb_8;
+  wire [2:0] fi_comb_9;
+  input [98:0] fi_combined;
   wire [6:0] fi_ff;
-  wire [3:0] fi_ff_2;
-  wire [2:0] fi_ff_3;
-  (* src = "rtl/top.sv:3.19-3.22" *)
+  wire [3:0] fi_ff_3;
+  wire [2:0] fi_ff_4;
+  (* src = "rtl/top.sv:3.28-3.31" *)
   input rst;
-  (* src = "rtl/top.sv:19.9-19.20" *)
+  (* src = "rtl/top.sv:6.28-6.36" *)
+  output [31:0] secret_o;
+  (* src = "rtl/top.sv:22.15-22.26" *)
   wire start_count;
-  (* src = "rtl/top.sv:4.19-4.26" *)
+  (* src = "rtl/top.sv:4.28-4.35" *)
   input start_i;
   (* enum_value_000 = "\\IDLE" *)
   (* enum_value_001 = "\\COUNT" *)
   (* enum_value_010 = "\\TWO" *)
+  (* enum_value_101 = "\\HIDDEN" *)
   (* enum_value_110 = "\\ERROR" *)
   (* enum_value_111 = "\\FINAL" *)
-  (* src = "rtl/top.sv:16.21-16.29" *)
+  (* src = "rtl/top.sv:19.21-19.29" *)
   (* wiretype = "\\state_e" *)
   wire [2:0] state_cs;
   (* enum_value_000 = "\\IDLE" *)
   (* enum_value_001 = "\\COUNT" *)
   (* enum_value_010 = "\\TWO" *)
+  (* enum_value_101 = "\\HIDDEN" *)
   (* enum_value_110 = "\\ERROR" *)
   (* enum_value_111 = "\\FINAL" *)
-  (* src = "rtl/top.sv:16.11-16.19" *)
+  (* src = "rtl/top.sv:19.11-19.19" *)
   (* wiretype = "\\state_e" *)
   wire [2:0] state_ns;
-  assign _10_ = cnt + (* src = "rtl/top.sv:73.15-73.25" *) 4'h1;
-  assign start_count = fi_comb[27] ^ _26_;
-  assign _27_ = fi_comb[28] ^ _04_;
-  assign done_o = fi_comb[29] ^ _05_;
-  assign _28_ = fi_comb[30] ^ _06_;
-  assign alert_o = fi_comb[31] ^ _07_;
-  assign _29_ = fi_comb[32] ^ _08_;
-  assign _00_ = fi_comb[36:33] ^ _09_;
-  assign _03_ = fi_comb[3:0] ^ _10_;
-  assign _30_ = fi_comb[4] ^ _11_;
-  assign cnt = fi_ff[3:0] ^ _12_;
-  assign state_cs = fi_ff[6:4] ^ _13_;
-  assign _31_ = fi_comb[7:5] ^ _14_;
-  assign _02_ = fi_comb[10:8] ^ _15_;
-  assign _32_ = fi_comb[11] ^ _16_;
-  assign _33_ = fi_comb[14:12] ^ _17_;
-  assign _01_ = fi_comb[17:15] ^ _18_;
-  assign _34_ = fi_comb[18] ^ _19_;
-  assign state_ns = fi_comb[21:19] ^ _20_;
-  assign _35_ = fi_comb[22] ^ _21_;
-  assign _36_ = fi_comb[23] ^ _22_;
-  assign _37_ = fi_comb[24] ^ _23_;
-  assign _38_ = fi_comb[25] ^ _24_;
-  assign _39_ = fi_comb[26] ^ _25_;
-  assign _11_ = cnt == (* src = "rtl/top.sv:36.13-36.27" *) 4'hc;
+  assign _028_ = cnt + (* src = "rtl/top.sv:95.15-95.25" *) 4'h1;
+  assign _037_ = fi_comb[23:21] ^ _004_;
+  assign _001_ = fi_comb[26:24] ^ _005_;
+  assign _038_ = fi_comb[27] ^ _006_;
+  assign data = fi_comb[35:28] ^ _007_;
+  assign _039_ = fi_comb[36] ^ _008_;
+  assign _040_ = fi_comb[37] ^ _009_;
+  assign _041_ = fi_comb[38] ^ _010_;
+  assign _042_ = fi_comb[39] ^ _011_;
+  assign state_ns = fi_comb[42:40] ^ _012_;
+  assign _043_ = fi_comb[43] ^ _013_;
+  assign _044_ = fi_comb[44] ^ _014_;
+  assign _045_ = fi_comb[45] ^ _015_;
+  assign _046_ = fi_comb[46] ^ _016_;
+  assign _047_ = fi_comb[47] ^ _017_;
+  assign _048_ = fi_comb[48] ^ _018_;
+  assign start_count = fi_comb[49] ^ _019_;
+  assign _049_ = fi_comb[50] ^ _020_;
+  assign done_o = fi_comb[51] ^ _021_;
+  assign _050_ = fi_comb[52] ^ _022_;
+  assign alert_o = fi_comb[53] ^ _023_;
+  assign _051_ = fi_comb[54] ^ _024_;
+  assign secret_o = fi_comb[86:55] ^ _025_;
+  assign _052_ = fi_comb[87] ^ _026_;
+  assign _000_ = fi_comb[91:88] ^ _027_;
+  assign _003_ = fi_comb[3:0] ^ _028_;
+  assign _053_ = fi_comb[4] ^ _029_;
+  assign _054_ = fi_comb[5] ^ _030_;
+  assign cnt = fi_ff[3:0] ^ _031_;
+  assign state_cs = fi_ff[6:4] ^ _032_;
+  assign data_o = fi_comb[13:6] ^ _033_;
+  assign _055_ = fi_comb[16:14] ^ _034_;
+  assign _002_ = fi_comb[19:17] ^ _035_;
+  assign _056_ = fi_comb[20] ^ _036_;
+  assign _029_ = cnt == (* src = "rtl/top.sv:43.13-43.27" *) 4'hc;
+  assign _030_ = state_cs == (* src = "rtl/top.sv:75.9-75.26" *) 3'h7;
   (* \always_ff  = 32'd1 *)
-  (* src = "rtl/top.sv:68.3-78.16" *)
+  (* src = "rtl/top.sv:90.3-100.16" *)
   always @(posedge clk, posedge rst)
-    if (rst) _12_ <= 4'h0;
-    else _12_ <= _00_;
+    if (rst) _031_ <= 4'h0;
+    else _031_ <= _000_;
   (* \always_ff  = 32'd1 *)
-  (* src = "rtl/top.sv:60.3-66.14" *)
+  (* src = "rtl/top.sv:82.3-88.14" *)
   always @(posedge clk, posedge rst)
-    if (rst) _13_ <= 3'h0;
-    else _13_ <= state_ns;
-  assign _14_ = _30_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:36.13-36.27|rtl/top.sv:36.9-38.12" *) 3'h2 : state_cs;
-  assign _15_ = _32_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) _31_ : 3'hx;
-  assign _16_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) 3'h1;
-  assign _17_ = start_i ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:29.13-29.20|rtl/top.sv:29.9-31.12" *) 3'h1 : state_cs;
-  assign _18_ = _34_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) _33_ : 3'hx;
-  assign _19_ = ! (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) state_cs;
-  function [2:0] _73_;
-    input [2:0] a;
-    input [14:0] b;
-    input [4:0] s;
+    if (rst) _032_ <= 3'h0;
+    else _032_ <= state_ns;
+  assign _033_ = _054_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:75.9-75.26|rtl/top.sv:75.5-79.8" *) data : 8'h00;
+  assign _034_ = _053_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:43.13-43.27|rtl/top.sv:43.9-45.12" *) 3'h2 : state_cs;
+  assign _035_ = _056_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) _055_ : 3'hx;
+  assign _036_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h1;
+  assign _004_ = start_i ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:35.13-35.20|rtl/top.sv:35.9-37.12" *) 3'h1 : state_cs;
+  assign _005_ = _038_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) _037_ : 3'hx;
+  assign _006_ = ! (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) state_cs;
+  function [7:0] _102_;
+    input [7:0] a;
+    input [31:0] b;
+    input [3:0] s;
     (* full_case = 32'd1 *)
-    (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *)
+    (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *)
     (* parallel_case *)
     casez (s)
-      5'b????1:
-        _73_ = b[2:0];
-      5'b???1?:
-        _73_ = b[5:3];
-      5'b??1??:
-        _73_ = b[8:6];
-      5'b?1???:
-        _73_ = b[11:9];
-      5'b1????:
-        _73_ = b[14:12];
+      4'b???1:
+        _102_ = b[7:0];
+      4'b??1?:
+        _102_ = b[15:8];
+      4'b?1??:
+        _102_ = b[23:16];
+      4'b1???:
+        _102_ = b[31:24];
       default:
-        _73_ = a;
+        _102_ = a;
     endcase
   endfunction
-  assign _20_ = _73_(3'h6, { _01_, _02_, 6'h3f, state_cs }, { _39_, _38_, _37_, _36_, _35_ });
-  assign _21_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) 3'h6;
-  assign _22_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) 3'h7;
-  assign _23_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) 3'h2;
-  assign _24_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) 3'h1;
-  assign _25_ = ! (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) state_cs;
-  assign _26_ = _27_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) 1'h1 : 1'h0;
-  assign _04_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) 3'h1;
-  assign _05_ = _28_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) 1'h1 : 1'h0;
-  assign _06_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) 3'h2;
-  assign _07_ = _29_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) 1'h1 : 1'h0;
-  assign _08_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:27.5-57.12" *) 3'h6;
-  assign _09_ = start_count ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:72.11-72.22|rtl/top.sv:72.7-76.10" *) _03_ : 4'h0;
+  assign _007_ = _102_(8'h00, 32'd2891417178, { _042_, _041_, _040_, _039_ });
+  assign _008_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h7;
+  assign _009_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h2;
+  assign _010_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h1;
+  assign _011_ = ! (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) state_cs;
+  function [2:0] _107_;
+    input [2:0] a;
+    input [17:0] b;
+    input [5:0] s;
+    (* full_case = 32'd1 *)
+    (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *)
+    (* parallel_case *)
+    casez (s)
+      6'b?????1:
+        _107_ = b[2:0];
+      6'b????1?:
+        _107_ = b[5:3];
+      6'b???1??:
+        _107_ = b[8:6];
+      6'b??1???:
+        _107_ = b[11:9];
+      6'b?1????:
+        _107_ = b[14:12];
+      6'b1?????:
+        _107_ = b[17:15];
+      default:
+        _107_ = a;
+    endcase
+  endfunction
+  assign _012_ = _107_(3'h6, { _001_, _002_, 6'h3f, state_cs, state_cs }, { _048_, _047_, _046_, _045_, _044_, _043_ });
+  assign _013_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h5;
+  assign _014_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h6;
+  assign _015_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h7;
+  assign _016_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h2;
+  assign _017_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h1;
+  assign _018_ = ! (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) state_cs;
+  assign _019_ = _049_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 1'h1 : 1'h0;
+  assign _020_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h1;
+  assign _021_ = _050_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 1'h1 : 1'h0;
+  assign _022_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h2;
+  assign _023_ = _051_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 1'h1 : 1'h0;
+  assign _024_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h6;
+  assign _025_ = _052_ ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 32'd3735928559 : 32'd0;
+  assign _026_ = state_cs == (* full_case = 32'd1 *) (* src = "rtl/top.sv:0.0-0.0|rtl/top.sv:33.5-71.12" *) 3'h5;
+  assign _027_ = start_count ? (* full_case = 32'd1 *) (* src = "rtl/top.sv:94.11-94.22|rtl/top.sv:94.7-98.10" *) _003_ : 4'h0;
   figenerator u_figenerator (
     .fi_0(fi_ff),
     .fi_1(fi_comb),
     .fi_combined(fi_combined)
   );
-  assign fi_comb_16 = fi_comb[27];
-  assign fi_comb_15 = fi_comb[26];
-  assign fi_comb_14 = fi_comb[25];
-  assign fi_comb_13 = fi_comb[24];
-  assign fi_comb_12 = fi_comb[23];
-  assign fi_comb_11 = fi_comb[22];
-  assign fi_comb_10 = fi_comb[21:19];
-  assign fi_comb_9 = fi_comb[18];
-  assign fi_comb_18 = fi_comb[29];
-  assign fi_comb_8 = fi_comb[17:15];
-  assign fi_comb_7 = fi_comb[14:12];
-  assign fi_comb_6 = fi_comb[11];
-  assign fi_comb_5 = fi_comb[10:8];
-  assign fi_comb_4 = fi_comb[7:5];
-  assign fi_comb_17 = fi_comb[28];
-  assign fi_ff_3 = fi_ff[6:4];
-  assign fi_comb_19 = fi_comb[30];
-  assign fi_ff_2 = fi_ff[3:0];
+  assign fi_comb_22 = fi_comb[47];
+  assign fi_comb_21 = fi_comb[46];
+  assign fi_comb_20 = fi_comb[45];
+  assign fi_comb_19 = fi_comb[44];
+  assign fi_comb_18 = fi_comb[43];
+  assign fi_comb_17 = fi_comb[42:40];
+  assign fi_comb_16 = fi_comb[39];
+  assign fi_comb_15 = fi_comb[38];
+  assign fi_comb_14 = fi_comb[37];
+  assign fi_comb_13 = fi_comb[36];
+  assign fi_comb_25 = fi_comb[50];
+  assign fi_comb_12 = fi_comb[35:28];
+  assign fi_comb_11 = fi_comb[27];
+  assign fi_comb_10 = fi_comb[26:24];
+  assign fi_comb_9 = fi_comb[23:21];
+  assign fi_comb_8 = fi_comb[20];
+  assign fi_comb_7 = fi_comb[19:17];
+  assign fi_comb_6 = fi_comb[16:14];
+  assign fi_comb_26 = fi_comb[51];
+  assign fi_comb_5 = fi_comb[13:6];
+  assign fi_ff_4 = fi_ff[6:4];
+  assign fi_comb_24 = fi_comb[49];
+  assign fi_ff_3 = fi_ff[3:0];
+  assign fi_comb_2 = fi_comb[5];
   assign fi_comb_1 = fi_comb[4];
+  assign fi_comb_27 = fi_comb[52];
   assign fi_comb_0 = fi_comb[3:0];
-  assign fi_comb_20 = fi_comb[31];
-  assign fi_comb_21 = fi_comb[32];
-  assign fi_comb_22 = fi_comb[36:33];
+  assign fi_comb_28 = fi_comb[53];
+  assign fi_comb_29 = fi_comb[54];
+  assign fi_comb_30 = fi_comb[86:55];
+  assign fi_comb_31 = fi_comb[87];
+  assign fi_comb_32 = fi_comb[91:88];
+  assign fi_comb_23 = fi_comb[48];
 endmodule
