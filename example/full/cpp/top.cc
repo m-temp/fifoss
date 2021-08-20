@@ -30,17 +30,21 @@ int main(int argc, char *argv[], char **env) {
   // Create a check for `alert_o` and delay the stop for 10 cycles
   fi.AddAbortWatch(&top->alert_o, 10);
 
+  // Check for 8-bit signal
+  // Define values to compare against
   CData data[] = {0xac, 0x57, 0x86};
+  // Create object connected to a design signal and the comparison values
   DataMonitor<CData> data_o(&top->data_o, data, sizeof(data)/sizeof(CData));
+  // Create a bind function
   std::function <bool ()> data_o_compare = std::bind(&DataMonitor<CData>::Compare, &data_o);
+  // Add the function the the watch list
+  fi.AddValueComparator(data_o_compare);
 
+  // Check for 32-bit signal
   IData secret[] = {0xdeadbeef};
   DataMonitor<IData> secret_o(&top->secret_o, secret, sizeof(secret)/sizeof(IData));
   std::function <bool ()> secret_o_compare = std::bind(&DataMonitor<IData>::Compare, &secret_o);
-
-  fi.AddValueComparator(data_o_compare);
   fi.AddValueComparator(secret_o_compare);
-
 
   while (!top->done_o) {
     // Alternate clock
