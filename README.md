@@ -78,3 +78,35 @@ be set to start a Yosys shell after the run instead of creating the log output
 file.
 
     $ make flipflop_orig_opt YOSYS_SHELL=1
+
+## Verilator class
+
+After the design was altered by Yosys the next step is to make use of the fault
+injection.
+When using Verilator the class `FaultInjection` provides support to utilizes
+this in a simulation.
+
+### Requirements
+
+Verilator must be installed.
+The minimum version for the `FaultInjection` is XXX
+To run the simulation example version XXX or higher must be used.
+Tested with:
+
+    $ verilator --version
+    Verilator 4.211 devel rev v4.210-70-gc69ddc46f
+
+### Using `FaultInjection`
+
+### Running the examples
+
+Two examples are provided.
+A minimal usage of `FaultInjection` is provided in `example/simple`.
+In `example/full` all features of `FaultInjection` are shown.
+
+Run all examples with
+
+    $ make example_verilator
+
+This will create the `addFi` Yosys pass, modify the design, build and run the
+simulation for each example.
