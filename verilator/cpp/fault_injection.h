@@ -19,19 +19,22 @@ struct abortWatch {
 	bool asserted;
 };
 
-namespace {
+struct compareValue {
+  uint8_t *original;
+  std::vector<uint8_t> check;
+};
+
 struct temporal {
 	int start;
 	int duration;
 };
-}
 
 class FaultInjection {
   public:
     /**
      * Create fault injection by limiting the fault space.
      */
-    FaultInjection(unsigned int fi_signal_len, struct temporal limit, bool mode_linear, unsigned long iteration_count = 0);
+    FaultInjection(unsigned int fi_signal_len, int temporal_start, int temporal_duration, bool mode_linear, unsigned long int iteration_count = 0);
 
     /**
      * Create fault injection by specifying precise clock and position.

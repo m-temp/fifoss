@@ -4,9 +4,10 @@
 #include <utility>
 #include "fault_injection.h"
 
-FaultInjection::FaultInjection(unsigned int fi_signal_len, struct temporal temporal_limit, bool mode_linear, unsigned long int iteration_count) : num_fi_signals(fi_signal_len) {
+FaultInjection::FaultInjection(unsigned int fi_signal_len, int temporal_start, int temporal_duration, bool mode_linear, unsigned long int iteration_count) : num_fi_signals(fi_signal_len) {
   injected = false;
   cycle_count = 0;
+  struct temporal temporal_limit = temporal{temporal_start, temporal_duration};
 
   // Two different ways to set the fault for a specific run.
   if (mode_linear) {
