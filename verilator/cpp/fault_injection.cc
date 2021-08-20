@@ -5,49 +5,49 @@
 #include "fault_injection.h"
 
 FaultInjection::FaultInjection(unsigned int fi_signal_len, int temporal_start, int temporal_duration, bool mode_linear, unsigned long int iteration_count) : num_fi_signals(fi_signal_len) {
-  injected = false;
-  cycle_count = 0;
+  injected_ = false;
+  cycle_count_ = 0;
   struct temporal temporal_limit = temporal{temporal_start, temporal_duration};
 
   // Two different ways to set the fault for a specific run.
   if (mode_linear) {
     // Linear mode need the current iteration number and will then iterate over the space.
     // Low frequency for clock and high frequency for position.
-    active_fault.temporal = iteration_count / num_fi_signals + temporal_limit.start;
-    active_fault.spatial = iteration_count % num_fi_signals;
+    active_fault_.temporal = iteration_count / num_fi_signals + temporal_limit.start;
+    active_fault_.spatial = iteration_count % num_fi_signals;
   } else {
     // Choose values randomly
     // TODO: Allow to set a manual seed or at some other randomness.
-    active_fault.temporal = rand() % temporal_limit.start + temporal_limit.duration;
-    active_fault.spatial = rand() % (num_fi_signals + 1);
+    active_fault_.temporal = rand() % temporal_limit.start + temporal_limit.duration;
+    active_fault_.spatial = rand() % (num_fi_signals + 1);
   }
 }
 
 FaultInjection::FaultInjection(unsigned int fi_signal_len, int fault_temporal, int fault_spatial) : num_fi_signals(fi_signal_len) {
-  injected = false;
-  cycle_count = 0;
-  active_fault = fault {fault_temporal, fault_spatial};
+  injected_ = false;
+  cycle_count_ = 0;
+  active_fault_ = fault {fault_temporal, fault_spatial};
 }
 
 std::pair<int, int> FaultInjection::GetFaultSpace() {
-  return std::make_pair(active_fault.temporal, active_fault.spatial);
+  return std::make_pair(active_fault_.temporal, active_fault_.spatial);
 }
 
 bool FaultInjection::Injected() {
-  return injected;
+  return injected_;
 }
 
 void FaultInjection::SaveToLog(std::ofstream &olog) {
-      olog << active_fault.temporal << "," << active_fault.spatial << std::endl;
+      olog << active_fault_.temporal << "," << active_fault_.spatial << std::endl;
 }
 
 void FaultInjection::AddAbortWatch(CData *signal, unsigned int delay, bool positive_polarity) {
-  abort_watch.push_back(abortWatch{signal, positive_polarity, delay, false});
+  abort_watch_list_.push_back(abortWatch{signal, positive_polarity, delay, false});
 }
 
 bool FaultInjection::StopRequested() {
   // Check for an abort signal
-  for (auto a = abort_watch.begin(); a != abort_watch.end(); ++a) {
+  for (auto a = abort_watch_list_.begin(); a != abort_watch_list_.end(); ++a) {
     // Store a signal assertion
     if (*a->signal == a->positive_polarity) {
       a->asserted = true;
@@ -64,7 +64,7 @@ bool FaultInjection::StopRequested() {
   }
 
   // Compare current values against comparison list
-  for (auto m : monitor_list) {
+  for (auto m : value_compare_list_) {
     if (m()) {
       return true;
     }
@@ -73,5 +73,5 @@ bool FaultInjection::StopRequested() {
 }
 
 void FaultInjection::AddValueComparator(std::function<bool ()>& fs) {
-  monitor_list.push_back(fs);
+  value_compare_list_.push_back(fs);
 }

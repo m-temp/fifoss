@@ -88,24 +88,24 @@ class FaultInjection {
 
   private:
     const unsigned int num_fi_signals;
-    bool injected;
-    unsigned long cycle_count;
-    struct fault active_fault;
-    std::vector<struct abortWatch> abort_watch;
-    std::vector<std::function<bool ()>> monitor_list;
+    bool injected_;
+    unsigned long cycle_count_;
+    struct fault active_fault_;
+    std::vector<struct abortWatch> abort_watch_list_;
+    std::vector<std::function<bool ()>> value_compare_list_;
 };
 
 /* Fault injection for signals with a width < 65 */
 template<typename T>
 bool FaultInjection::UpdateInsert(T &fi_signal) {
-  if (injected) {
+  if (injected_) {
     fi_signal = 0x00;
     return true;
   }
-  if (cycle_count++ > active_fault.temporal) {
-    std::cout << "Fault injection in cycle " << active_fault.temporal << " at number " << active_fault.spatial << " for one cycle" << std::endl;
-    fi_signal = ((T) 0x1) << active_fault.spatial;
-    injected = true;
+  if (cycle_count_++ > active_fault_.temporal) {
+    std::cout << "Fault injection in cycle " << active_fault_.temporal << " at number " << active_fault_.spatial << " for one cycle" << std::endl;
+    fi_signal = ((T) 0x1) << active_fault_.spatial;
+    injected_ = true;
     return true;
   }
   return false;
@@ -114,14 +114,14 @@ bool FaultInjection::UpdateInsert(T &fi_signal) {
 /* Fault injection for signals with a width > 64. Signals are handled as 32-bit arrays. */
 template<typename T>
 bool FaultInjection::UpdateInsert(T *fi_signal) {
-  if (injected) {
-    fi_signal[active_fault.spatial / 32] = 0x00000000;
+  if (injected_) {
+    fi_signal[active_fault_.spatial / 32] = 0x00000000;
     return true;
   }
-  if (cycle_count++ > active_fault.temporal) {
-    std::cout << "Fault injection in cycle " << active_fault.temporal << " at number " << active_fault.spatial << " for one cycle" << std::endl;
-    fi_signal[active_fault.spatial / 32] = 0x1 << (active_fault.spatial % 32);
-    injected = true;
+  if (cycle_count_++ > active_fault_.temporal) {
+    std::cout << "Fault injection in cycle " << active_fault_.temporal << " at number " << active_fault_.spatial << " for one cycle" << std::endl;
+    fi_signal[active_fault_.spatial / 32] = 0x1 << (active_fault_.spatial % 32);
+    injected_ = true;
     return true;
   }
   return false;
