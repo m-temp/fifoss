@@ -82,7 +82,7 @@ class FaultInjection {
     /**
      * Dump current fault configuration into output stream. Used for logging.
      */
-    void SaveToLog(std::ofstream&);
+    void DumpConfig(std::ofstream&);
 
     /**
      * Return the current fault configuration.
