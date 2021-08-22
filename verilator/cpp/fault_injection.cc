@@ -7,7 +7,7 @@
 FaultInjection::FaultInjection(unsigned int fi_signal_len, int temporal_start, int temporal_duration, bool mode_linear, unsigned long int iteration_count) : num_fi_signals(fi_signal_len) {
   injected_ = false;
   cycle_count_ = 0;
-  struct temporal temporal_limit = temporal{temporal_start, temporal_duration};
+  struct Temporal temporal_limit = Temporal{temporal_start, temporal_duration};
 
   // Two different ways to set the fault for a specific run.
   if (mode_linear) {
@@ -26,7 +26,7 @@ FaultInjection::FaultInjection(unsigned int fi_signal_len, int temporal_start, i
 FaultInjection::FaultInjection(unsigned int fi_signal_len, int fault_temporal, int fault_spatial) : num_fi_signals(fi_signal_len) {
   injected_ = false;
   cycle_count_ = 0;
-  active_fault_ = fault {fault_temporal, fault_spatial};
+  active_fault_ = Fault {fault_temporal, fault_spatial};
 }
 
 std::pair<int, int> FaultInjection::GetFaultSpace() {
@@ -42,7 +42,7 @@ void FaultInjection::SaveToLog(std::ofstream &olog) {
 }
 
 void FaultInjection::AddAbortWatch(CData *signal, unsigned int delay, bool positive_polarity) {
-  abort_watch_list_.push_back(abortWatch{signal, positive_polarity, delay, false});
+  abort_watch_list_.push_back(AbortInfo{signal, positive_polarity, delay, false});
 }
 
 bool FaultInjection::StopRequested() {

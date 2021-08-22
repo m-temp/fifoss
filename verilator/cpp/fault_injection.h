@@ -7,20 +7,20 @@
 #include <vector>
 #include <verilated.h>
 
-struct fault {
+struct Fault {
   int temporal;
   int spatial;
   friend std::ostream &operator<<(std::ostream& os, const struct Fault& f);
 };
 
-struct abortWatch {
+struct AbortInfo {
   CData *signal;
   bool positive_polarity;
   unsigned int delay;
   bool asserted;
 };
 
-struct temporal {
+struct Temporal {
   int start;
   int duration;
 };
@@ -93,8 +93,8 @@ class FaultInjection {
     const unsigned int num_fi_signals;
     bool injected_;
     unsigned long cycle_count_;
-    struct fault active_fault_;
-    std::vector<struct abortWatch> abort_watch_list_;
+    struct Fault active_fault_;
+    std::vector<struct AbortInfo> abort_watch_list_;
     std::vector<std::function<bool ()>> value_compare_list_;
 };
 
