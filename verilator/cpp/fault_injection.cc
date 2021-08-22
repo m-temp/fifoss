@@ -75,3 +75,13 @@ bool FaultInjection::StopRequested() {
 void FaultInjection::AddValueComparator(std::function<bool ()>& fs) {
   value_compare_list_.push_back(fs);
 }
+
+std::ostream & operator<<(std::ostream& os, const struct Fault& f) {
+  os << f.temporal << "," << f.spatial;
+  return os;
+}
+
+std::ostream & operator<<(std::ostream& os, const FaultInjection& f) {
+  os << f.active_fault_;
+  return os;
+}

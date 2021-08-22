@@ -59,7 +59,9 @@ int main(int argc, char *argv[], char **env) {
     }
 
     if (top->clk) {
-      fi.UpdateInsert(top->fi_combined);
+      if (fi.UpdateInsert(top->fi_combined)) {
+        std::cout << "Fault inserted: " << fi << std::endl;
+      }
     }
 
     top->eval();
