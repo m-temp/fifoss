@@ -37,8 +37,8 @@ bool FaultInjection::Injected() {
   return injected_;
 }
 
-void FaultInjection::SaveToLog(std::ofstream &olog) {
-      olog << active_fault_.temporal << "," << active_fault_.spatial << std::endl;
+void FaultInjection::DumpConfig(std::ofstream &olog) {
+      olog << active_fault_ << std::endl;
 }
 
 void FaultInjection::AddAbortWatch(CData *signal, unsigned int delay, bool positive_polarity) {
