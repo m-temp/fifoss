@@ -3,13 +3,14 @@
 
 #include <cstdint>
 #include <fstream>
-#include <iostream>
+#include <ostream>
 #include <vector>
 #include <verilated.h>
 
 struct fault {
   int temporal;
   int spatial;
+  friend std::ostream &operator<<(std::ostream& os, const struct Fault& f);
 };
 
 struct abortWatch {
@@ -35,6 +36,8 @@ class FaultInjection {
      * Create fault injection by specifying precise clock and position.
      */
     FaultInjection(unsigned int fi_signal_len, int fault_temporal, int fault_spatial);
+
+    friend std::ostream &operator<<(std::ostream& os, const FaultInjection& f);
 
     /**
      * Inject a fault if the configured criteria are met.
@@ -103,7 +106,6 @@ bool FaultInjection::UpdateInsert(T &fi_signal) {
     return true;
   }
   if (cycle_count_++ > active_fault_.temporal) {
-    std::cout << "Fault injection in cycle " << active_fault_.temporal << " at number " << active_fault_.spatial << " for one cycle" << std::endl;
     fi_signal = ((T) 0x1) << active_fault_.spatial;
     injected_ = true;
     return true;
@@ -119,7 +121,6 @@ bool FaultInjection::UpdateInsert(T *fi_signal) {
     return true;
   }
   if (cycle_count_++ > active_fault_.temporal) {
-    std::cout << "Fault injection in cycle " << active_fault_.temporal << " at number " << active_fault_.spatial << " for one cycle" << std::endl;
     fi_signal[active_fault_.spatial / 32] = 0x1 << (active_fault_.spatial % 32);
     injected_ = true;
     return true;
@@ -128,4 +129,3 @@ bool FaultInjection::UpdateInsert(T *fi_signal) {
 }
 
 #endif // FAULT_INJECTION_H_
-
