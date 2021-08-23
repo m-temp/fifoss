@@ -2,6 +2,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+#include <sstream>
 #include <utility>
 #include "fault_injection.h"
 
@@ -43,10 +44,11 @@ void FaultInjection::DumpConfig(std::ofstream &olog) {
 }
 
 void FaultInjection::AddAbortWatch(const char *name, CData *signal, unsigned int delay, bool positive_polarity) {
-  abort_watch_list_.push_back(AbortInfo{name, signal, positive_polarity, delay, false});
+  abort_watch_list_.push_back(AbortInfo{name, signal, positive_polarity, delay, delay, false});
 }
 
 bool FaultInjection::StopRequested() {
+  std::ostringstream osb;
   // Check for an abort signal
   for (auto a = abort_watch_list_.begin(); a != abort_watch_list_.end(); ++a) {
     // Store a signal assertion
@@ -54,11 +56,17 @@ bool FaultInjection::StopRequested() {
       a->asserted = true;
     }
     if (a->asserted) {
+      if (a->delay == a->delay_count) {
+        osb << cycle_count_ << "\t" << active_fault_ << "\t" << "abort signal detected" << "\t" << a->name_ << std::endl;
+        log_ += osb.str();
+      }
       // After a signal is asserted, wait for 'delay' cycles before signalling
       // the stop request
-      if (a->delay > 0) {
-        a->delay--;
+      if (a->delay_count > 0) {
+        a->delay_count--;
       } else {
+        osb << cycle_count_ << "\t" << active_fault_ << "\t" << "abort signal dealy expired" << "\t" << a->name_ << std::endl;
+        log_ += osb.str();
         return true;
       }
     }
@@ -68,9 +76,10 @@ bool FaultInjection::StopRequested() {
   for (auto m : value_compare_list_) {
     std::string log;
     if (m(log)) {
-      std::cout << active_fault_ << ": data value found: " << log << std::endl;
+      osb << cycle_count_ << "\t" << active_fault_ << "\t" << "data match" << "\t" << log << std::endl;
     }
   }
+  log_ += osb.str();
   return false;
 }
 
@@ -84,6 +93,6 @@ std::ostream & operator<<(std::ostream& os, const struct Fault& f) {
 }
 
 std::ostream & operator<<(std::ostream& os, const FaultInjection& f) {
-  os << f.active_fault_;
+  os << f.log_;
   return os;
 }

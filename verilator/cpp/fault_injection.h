@@ -3,8 +3,10 @@
 
 #include <cstdint>
 #include <fstream>
+#include <functional>
 #include <ostream>
 #include <vector>
+#include <sstream>
 #include <string>
 #include <verilated.h>
 
@@ -18,7 +20,8 @@ struct AbortInfo {
   const std::string name_;
   CData *signal;
   bool positive_polarity;
-  unsigned int delay;
+  const unsigned int delay;
+  unsigned int delay_count;
   bool asserted;
 };
 
@@ -98,6 +101,7 @@ class FaultInjection {
     struct Fault active_fault_;
     std::vector<struct AbortInfo> abort_watch_list_;
     std::vector<std::function<bool (std::string &)>> value_compare_list_;
+    std::string log_;
 };
 
 /* Fault injection for signals with a width < 65 */
@@ -107,9 +111,12 @@ bool FaultInjection::UpdateInsert(T &fi_signal) {
     fi_signal = 0x00;
     return true;
   }
-  if (cycle_count_++ > active_fault_.temporal) {
+  if (++cycle_count_ >= active_fault_.temporal) {
     fi_signal = ((T) 0x1) << active_fault_.spatial;
     injected_ = true;
+    std::ostringstream osb;
+    osb << cycle_count_ << "\t" << active_fault_ << "\t" << "Fault inserted" << std::endl;
+    log_ += osb.str();
     return true;
   }
   return false;
@@ -122,9 +129,12 @@ bool FaultInjection::UpdateInsert(T *fi_signal) {
     fi_signal[active_fault_.spatial / 32] = 0x00000000;
     return true;
   }
-  if (cycle_count_++ > active_fault_.temporal) {
+  if (++cycle_count_ >= active_fault_.temporal) {
     fi_signal[active_fault_.spatial / 32] = 0x1 << (active_fault_.spatial % 32);
     injected_ = true;
+    std::ostringstream osb;
+    osb << cycle_count_ << "\t" << active_fault_ << "\t" << "Fault inserted" << std::endl;
+    log_ += osb.str();
     return true;
   }
   return false;

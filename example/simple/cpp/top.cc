@@ -55,6 +55,8 @@ int main(int argc, char *argv[], char **env) {
     sim_done = top->done;
   }
 
+  std::cout << fi << std::endl;
+
   // Finish
   top->final();
   tfp->close();
