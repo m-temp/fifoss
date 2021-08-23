@@ -65,14 +65,16 @@ bool FaultInjection::StopRequested() {
 
   // Compare current values against comparison list
   for (auto m : value_compare_list_) {
-    if (m()) {
+    std::string log;
+    if (m(log)) {
+      std::cout << active_fault_ << ": data value found: " << log << std::endl;
       return true;
     }
   }
   return false;
 }
 
-void FaultInjection::AddValueComparator(std::function<bool ()>& fs) {
+void FaultInjection::AddValueComparator(std::function<bool (std::string &)>& fs) {
   value_compare_list_.push_back(fs);
 }
 
