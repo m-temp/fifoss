@@ -61,9 +61,7 @@ int main(int argc, char *argv[], char **env) {
     }
 
     if (top->clk) {
-      if (fi.UpdateInsert(top->fi_combined)) {
-        std::cout << "Fault inserted: " << fi << std::endl;
-      }
+      fi.UpdateInsert(top->fi_combined);
     }
 
     top->eval();
@@ -71,7 +69,6 @@ int main(int argc, char *argv[], char **env) {
     // Check for a stop request
     if (top->clk) {
       if (fi.StopRequested()) {
-        std::cout << "Fault injection: Stop requested" << std::endl;
         break;
       }
     }
@@ -79,6 +76,8 @@ int main(int argc, char *argv[], char **env) {
     tfp->dump(cp->time());
 
   }
+
+  std::cout << fi << std::endl;
 
   // Finish
   top->final();
