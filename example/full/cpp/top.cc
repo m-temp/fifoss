@@ -35,7 +35,7 @@ int main(int argc, char *argv[], char **env) {
   // Define values to compare against
   CData data[] = {0xac, 0x57, 0x86};
   // Create object connected to a design signal and the comparison values
-  DataMonitor<CData> data_o(&top->data_o, data, sizeof(data)/sizeof(CData));
+  DataMonitor<CData> data_o("data_o", &top->data_o, data, sizeof(data)/sizeof(CData));
   // Create a bind function
   std::function <bool (std::string &)> data_o_compare = std::bind(&DataMonitor<CData>::Compare, &data_o, std::placeholders::_1);
   // Add the function the the watch list
@@ -43,7 +43,7 @@ int main(int argc, char *argv[], char **env) {
 
   // Check for 32-bit signal
   IData secret[] = {0xdeadbeef};
-  DataMonitor<IData> secret_o(&top->secret_o, secret, sizeof(secret)/sizeof(IData));
+  DataMonitor<IData> secret_o("secret_o", &top->secret_o, secret, sizeof(secret)/sizeof(IData));
   std::function <bool (std::string &)> secret_o_compare = std::bind(&DataMonitor<IData>::Compare, &secret_o, std::placeholders::_1);
   fi.AddValueComparator(secret_o_compare);
 
