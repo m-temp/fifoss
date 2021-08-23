@@ -68,7 +68,6 @@ bool FaultInjection::StopRequested() {
     std::string log;
     if (m(log)) {
       std::cout << active_fault_ << ": data value found: " << log << std::endl;
-      return true;
     }
   }
   return false;
