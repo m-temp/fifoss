@@ -90,7 +90,7 @@ this in a simulation.
 
 Verilator must be installed.
 The minimum version for the `FaultInjection` is XXX
-To run the simulation example version XXX or higher must be used.
+To run the simulation example version 4.200 or higher must be used.
 Tested with:
 
     $ verilator --version
