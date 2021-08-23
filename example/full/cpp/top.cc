@@ -68,9 +68,11 @@ int main(int argc, char *argv[], char **env) {
     top->eval();
 
     // Check for a stop request
-    if (fi.StopRequested()) {
-      std::cout << "Fault injection: Stop requested" << std::endl;
-      break;
+    if (top->clk) {
+      if (fi.StopRequested()) {
+        std::cout << "Fault injection: Stop requested" << std::endl;
+        break;
+      }
     }
 
     tfp->dump(cp->time());
