@@ -10,9 +10,10 @@
 template<typename T>
 class DataMonitor {
   public:
-    DataMonitor(T *signal, T compare_values[], size_t compare_length);
+    DataMonitor(const char *name, T *signal, T compare_values[], size_t compare_length);
     bool Compare(std::string &log);
   private:
+    const std::string name_;
     T *signal_;
     T *compare_values_;
     size_t compare_length_;
@@ -26,8 +27,9 @@ bool DataMonitor<T>::Compare(std::string &log) {
       // Using snprintf instead of ostringstream because only with printf like
       // formatting the values of T are converted to a hex representation
       // without knowing the basic type (e.g. CData vs unsigned short).
-      std::snprintf(l, sizeof(l), "0x%x", compare_values_[i]);
-      log = l;
+      log = name_;
+      std::snprintf(l, sizeof(l), " 0x%x", compare_values_[i]);
+      log += l;
       return true;
     }
   }
@@ -35,7 +37,7 @@ bool DataMonitor<T>::Compare(std::string &log) {
 }
 
 template<typename T>
-DataMonitor<T>::DataMonitor(T *signal, T compare_values[], size_t compare_length) {
+DataMonitor<T>::DataMonitor(const char *name, T *signal, T compare_values[], size_t compare_length) : name_(name) {
   signal_ = signal;
   compare_values_ = compare_values;
   compare_length_ = compare_length;
