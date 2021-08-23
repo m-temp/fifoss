@@ -5,6 +5,7 @@
 #include <fstream>
 #include <ostream>
 #include <vector>
+#include <string>
 #include <verilated.h>
 
 struct Fault {
@@ -14,6 +15,7 @@ struct Fault {
 };
 
 struct AbortInfo {
+  const std::string name_;
   CData *signal;
   bool positive_polarity;
   unsigned int delay;
@@ -57,7 +59,7 @@ class FaultInjection {
      * This can be for example an alter handler which is triggered by an
      * injected fault.
      */
-    void AddAbortWatch(CData *signal, unsigned int delay = 0, bool positive_polarity = true);
+    void AddAbortWatch(const char *name, CData *signal, unsigned int delay = 0, bool positive_polarity = true);
 
     /**
      * Convey a request to stop the simulation.
