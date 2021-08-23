@@ -1,5 +1,6 @@
 #include <memory>
 #include <iostream>
+#include <string>
 
 #include <verilated.h>
 #include <verilated_vcd_c.h>
@@ -36,14 +37,14 @@ int main(int argc, char *argv[], char **env) {
   // Create object connected to a design signal and the comparison values
   DataMonitor<CData> data_o(&top->data_o, data, sizeof(data)/sizeof(CData));
   // Create a bind function
-  std::function <bool ()> data_o_compare = std::bind(&DataMonitor<CData>::Compare, &data_o);
+  std::function <bool (std::string &)> data_o_compare = std::bind(&DataMonitor<CData>::Compare, &data_o, std::placeholders::_1);
   // Add the function to the watch list
   fi.AddValueComparator(data_o_compare);
 
   // Check for 32-bit signal
   IData secret[] = {0xdeadbeef};
   DataMonitor<IData> secret_o(&top->secret_o, secret, sizeof(secret)/sizeof(IData));
-  std::function <bool ()> secret_o_compare = std::bind(&DataMonitor<IData>::Compare, &secret_o);
+  std::function <bool (std::string &)> secret_o_compare = std::bind(&DataMonitor<IData>::Compare, &secret_o, std::placeholders::_1);
   fi.AddValueComparator(secret_o_compare);
 
   while (!top->done_o) {

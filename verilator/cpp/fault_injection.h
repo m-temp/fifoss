@@ -72,7 +72,7 @@ class FaultInjection {
      *
      * Values are compared in `StopRequested`.
      */
-    void AddValueComparator(std::function<bool ()>&);
+    void AddValueComparator(std::function<bool (std::string &s)>&);
 
     /**
      * Check if a fault has been injected.
@@ -95,7 +95,7 @@ class FaultInjection {
     unsigned long cycle_count_;
     struct Fault active_fault_;
     std::vector<struct AbortInfo> abort_watch_list_;
-    std::vector<std::function<bool ()>> value_compare_list_;
+    std::vector<std::function<bool (std::string &)>> value_compare_list_;
 };
 
 /* Fault injection for signals with a width < 65 */
