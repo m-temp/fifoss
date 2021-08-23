@@ -39,7 +39,7 @@ int main(int argc, char *argv[], char **env) {
   DataMonitor<CData> data_o("data_o", &top->data_o, data, sizeof(data)/sizeof(CData));
   // Create a bind function
   std::function <bool (std::string &)> data_o_compare = std::bind(&DataMonitor<CData>::Compare, &data_o, std::placeholders::_1);
-  // Add the function the the watch list
+  // Add the function to the watch list
   fi.AddValueComparator(data_o_compare);
 
   // Check for 32-bit signal
