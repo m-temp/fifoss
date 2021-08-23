@@ -41,8 +41,8 @@ void FaultInjection::DumpConfig(std::ofstream &olog) {
       olog << active_fault_ << std::endl;
 }
 
-void FaultInjection::AddAbortWatch(CData *signal, unsigned int delay, bool positive_polarity) {
-  abort_watch_list_.push_back(AbortInfo{signal, positive_polarity, delay, false});
+void FaultInjection::AddAbortWatch(const char *name, CData *signal, unsigned int delay, bool positive_polarity) {
+  abort_watch_list_.push_back(AbortInfo{name, signal, positive_polarity, delay, false});
 }
 
 bool FaultInjection::StopRequested() {

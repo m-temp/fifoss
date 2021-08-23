@@ -29,7 +29,7 @@ int main(int argc, char *argv[], char **env) {
   FaultInjection fi = FaultInjection(44, 13, 12);
 
   // Create a check for `alert_o` and delay the stop for 10 cycles
-  fi.AddAbortWatch(&top->alert_o, 10);
+  fi.AddAbortWatch("alert_o", &top->alert_o, 10);
 
   // Check for 8-bit signal
   // Define values to compare against
