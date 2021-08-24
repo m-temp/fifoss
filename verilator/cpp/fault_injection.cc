@@ -25,11 +25,9 @@ FaultInjection::FaultInjection(unsigned int fi_signal_len, int temporal_start, i
     active_fault_.temporal = rand() % temporal_limit.start + temporal_limit.duration;
     active_fault_.spatial = rand() % (num_fi_signals + 1);
   }
-  std::ostringstream l;
-  l << "Fault injection configured with:\n\tfault signal width: " << fi_signal_len << "\n\tfault cycle: " << active_fault_.temporal
+  log_ << "Fault injection configured with:\n\tfault signal width: " << fi_signal_len << "\n\tfault cycle: " << active_fault_.temporal
     << " (" << temporal_start << "-" << temporal_duration << ")"
     << "\n\tfault signal number: " << active_fault_.spatial << std::endl;
-  log_ = l.str();
 }
 
 FaultInjection::FaultInjection(unsigned int fi_signal_len, int fault_temporal, int fault_spatial)
@@ -38,10 +36,8 @@ FaultInjection::FaultInjection(unsigned int fi_signal_len, int fault_temporal, i
   injected_ = false;
   cycle_count_ = 0;
   active_fault_ = Fault {fault_temporal, fault_spatial};
-  std::ostringstream l;
-  l << "Fault injection configured with:\nfault signal width: " << fi_signal_len << "\nfault cycle: " << active_fault_.temporal
+  log_ << "Fault injection configured with:\nfault signal width: " << fi_signal_len << "\nfault cycle: " << active_fault_.temporal
     << "\nfault signal number: " << active_fault_.spatial << std::endl;
-  log_ = l.str();
 }
 
 struct Fault FaultInjection::GetFaultSpace() {
@@ -61,7 +57,6 @@ void FaultInjection::AddAbortWatch(const char *name, CData *signal, unsigned int
 }
 
 bool FaultInjection::StopRequested() {
-  std::ostringstream osb;
   // Check for an abort signal
   for (auto a = abort_watch_list_.begin(); a != abort_watch_list_.end(); ++a) {
     // Store a signal assertion
@@ -70,16 +65,14 @@ bool FaultInjection::StopRequested() {
     }
     if (a->asserted) {
       if (a->delay == a->delay_count) {
-        osb << cycle_count_ << "\t" << active_fault_ << "\t" << "abort signal detected" << "\t" << a->name_ << std::endl;
-        log_ += osb.str();
+        log_ << cycle_count_ << "\t" << active_fault_ << "\t" << "abort signal detected" << "\t" << a->name_ << std::endl;
       }
       // After a signal is asserted, wait for 'delay' cycles before signalling
       // the stop request
       if (a->delay_count > 0) {
         a->delay_count--;
       } else {
-        osb << cycle_count_ << "\t" << active_fault_ << "\t" << "abort signal dealy expired" << "\t" << a->name_ << std::endl;
-        log_ += osb.str();
+        log_ << cycle_count_ << "\t" << active_fault_ << "\t" << "abort signal dealy expired" << "\t" << a->name_ << std::endl;
         return true;
       }
     }
@@ -89,10 +82,9 @@ bool FaultInjection::StopRequested() {
   for (auto m : value_compare_list_) {
     std::string log;
     if (m(log)) {
-      osb << cycle_count_ << "\t" << active_fault_ << "\t" << "data match" << "\t" << log << std::endl;
+      log_ << cycle_count_ << "\t" << active_fault_ << "\t" << "data match" << "\t" << log << std::endl;
     }
   }
-  log_ += osb.str();
   return false;
 }
 
@@ -106,6 +98,6 @@ std::ostream & operator<<(std::ostream& os, const struct Fault& f) {
 }
 
 std::ostream & operator<<(std::ostream& os, const FaultInjection& f) {
-  os << f.log_;
+  os << f.log_.str();
   return os;
 }
