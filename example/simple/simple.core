@@ -22,5 +22,5 @@ targets:
         verilator_options:
           - '--trace'
           - '--public'
-          - '-CFLAGS "-std=c++11 -g -O0"'
+          - '-CFLAGS "-std=c++14 -g -O0"'
           - '-Wno-fatal'
