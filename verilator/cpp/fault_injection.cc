@@ -6,7 +6,9 @@
 #include <utility>
 #include "fault_injection.h"
 
-FaultInjection::FaultInjection(unsigned int fi_signal_len, int temporal_start, int temporal_duration, bool mode_linear, unsigned long int iteration_count) : num_fi_signals(fi_signal_len) {
+FaultInjection::FaultInjection(unsigned int fi_signal_len, int temporal_start, int temporal_duration, bool mode_linear, unsigned long int iteration_count)
+  : num_fi_signals(fi_signal_len),
+    injection_duration_(1) {
   injected_ = false;
   cycle_count_ = 0;
   struct Temporal temporal_limit = Temporal{temporal_start, temporal_duration};
@@ -30,7 +32,9 @@ FaultInjection::FaultInjection(unsigned int fi_signal_len, int temporal_start, i
   log_ = l.str();
 }
 
-FaultInjection::FaultInjection(unsigned int fi_signal_len, int fault_temporal, int fault_spatial) : num_fi_signals(fi_signal_len) {
+FaultInjection::FaultInjection(unsigned int fi_signal_len, int fault_temporal, int fault_spatial)
+  : num_fi_signals(fi_signal_len),
+    injection_duration_(1) {
   injected_ = false;
   cycle_count_ = 0;
   active_fault_ = Fault {fault_temporal, fault_spatial};
