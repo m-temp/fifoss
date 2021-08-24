@@ -92,7 +92,7 @@ class FaultInjection {
     /**
      * Return the current fault configuration.
      */
-    std::pair<int, int> GetFaultSpace();
+    struct Fault GetFaultSpace();
 
   private:
     const unsigned int num_fi_signals;
