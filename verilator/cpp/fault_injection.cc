@@ -23,12 +23,21 @@ FaultInjection::FaultInjection(unsigned int fi_signal_len, int temporal_start, i
     active_fault_.temporal = rand() % temporal_limit.start + temporal_limit.duration;
     active_fault_.spatial = rand() % (num_fi_signals + 1);
   }
+  std::ostringstream l;
+  l << "Fault injection configured with:\n\tfault signal width: " << fi_signal_len << "\n\tfault cycle: " << active_fault_.temporal
+    << " (" << temporal_start << "-" << temporal_duration << ")"
+    << "\n\tfault signal number: " << active_fault_.spatial << std::endl;
+  log_ = l.str();
 }
 
 FaultInjection::FaultInjection(unsigned int fi_signal_len, int fault_temporal, int fault_spatial) : num_fi_signals(fi_signal_len) {
   injected_ = false;
   cycle_count_ = 0;
   active_fault_ = Fault {fault_temporal, fault_spatial};
+  std::ostringstream l;
+  l << "Fault injection configured with:\nfault signal width: " << fi_signal_len << "\nfault cycle: " << active_fault_.temporal
+    << "\nfault signal number: " << active_fault_.spatial << std::endl;
+  log_ = l.str();
 }
 
 std::pair<int, int> FaultInjection::GetFaultSpace() {
