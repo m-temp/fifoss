@@ -12,6 +12,8 @@
 
 int main(int argc, char *argv[], char **env) {
 
+  const unsigned int fi_combined_len = 99;
+
   const std::unique_ptr<VerilatedContext> cp{new VerilatedContext};
 
   cp->traceEverOn(true);
@@ -27,7 +29,7 @@ int main(int argc, char *argv[], char **env) {
   top->trace(tfp, 99);
   tfp->open("trace.vcd");
 
-  FaultInjection fi = FaultInjection(44, 13, 12);
+  FaultInjection fi = FaultInjection(fi_combined_len, 13, 12);
 
   // Create a check for `alert_o` and delay the stop for 10 cycles
   fi.AddAbortWatch("alert_o", &top->alert_o, 10);
