@@ -109,7 +109,7 @@ class FaultInjection {
     struct Fault active_fault_;
     std::vector<struct AbortInfo> abort_watch_list_;
     std::vector<std::function<bool (std::string &)>> value_compare_list_;
-    std::string log_;
+    std::stringstream log_;
 };
 
 // TODO: make fault active length variable
@@ -129,9 +129,7 @@ bool FaultInjection::UpdateInsert(T &fi_signal) {
   if (cycle_count_ >= active_fault_.temporal) {
     fi_signal = ((T) 0x1) << active_fault_.spatial;
     injected_ = true;
-    std::ostringstream osb;
-    osb << cycle_count_ << "\t" << active_fault_ << "\t" << "Fault inserted" << std::endl;
-    log_ += osb.str();
+    log_ << cycle_count_ << "\t" << active_fault_ << "\t" << "Fault inserted" << std::endl;
     return true;
   }
   return false;
@@ -152,9 +150,7 @@ bool FaultInjection::UpdateInsert(T *fi_signal) {
   if (cycle_count_ >= active_fault_.temporal) {
     fi_signal[active_fault_.spatial / 32] = 0x1 << (active_fault_.spatial % 32);
     injected_ = true;
-    std::ostringstream osb;
-    osb << cycle_count_ << "\t" << active_fault_ << "\t" << "Fault inserted" << std::endl;
-    log_ += osb.str();
+    log_ << cycle_count_ << "\t" << active_fault_ << "\t" << "Fault inserted" << std::endl;
     return true;
   }
   return false;
