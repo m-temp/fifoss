@@ -40,8 +40,8 @@ FaultInjection::FaultInjection(unsigned int fi_signal_len, int fault_temporal, i
   log_ = l.str();
 }
 
-std::pair<int, int> FaultInjection::GetFaultSpace() {
-  return std::make_pair(active_fault_.temporal, active_fault_.spatial);
+struct Fault FaultInjection::GetFaultSpace() {
+  return active_fault_;
 }
 
 bool FaultInjection::Injected() {
