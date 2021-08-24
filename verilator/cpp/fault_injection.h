@@ -80,6 +80,13 @@ class FaultInjection {
     void AddValueComparator(std::function<bool (std::string &s)>&);
 
     /**
+     * Set the duration of an active fault.
+     *
+     * Number of cycles in which the fault is active (asserted), default is one cycle.
+     */
+    void SetFaultDuration(unsigned int length) {injection_duration_= length;};
+
+    /**
      * Check if a fault has been injected.
      */
     bool Injected();
@@ -97,6 +104,7 @@ class FaultInjection {
   private:
     const unsigned int num_fi_signals;
     bool injected_;
+    unsigned int injection_duration_;
     unsigned long cycle_count_;
     struct Fault active_fault_;
     std::vector<struct AbortInfo> abort_watch_list_;
@@ -104,13 +112,19 @@ class FaultInjection {
     std::string log_;
 };
 
+// TODO: make fault active length variable
+
 /* Fault injection for signals with a width < 65 */
 template<typename T>
 bool FaultInjection::UpdateInsert(T &fi_signal) {
   cycle_count_++;
   if (injected_) {
-    fi_signal = 0x00;
-    return true;
+    if (injection_duration_>1) {
+      injection_duration_--;
+    } else {
+      fi_signal = 0x00;
+      return true;
+    }
   }
   if (cycle_count_ >= active_fault_.temporal) {
     fi_signal = ((T) 0x1) << active_fault_.spatial;
@@ -128,8 +142,12 @@ template<typename T>
 bool FaultInjection::UpdateInsert(T *fi_signal) {
   cycle_count_++;
   if (injected_) {
-    fi_signal[active_fault_.spatial / 32] = 0x00000000;
-    return true;
+    if (injection_duration_>1) {
+      injection_duration_--;
+    } else {
+      fi_signal[active_fault_.spatial / 32] = 0x00000000;
+      return true;
+    }
   }
   if (cycle_count_ >= active_fault_.temporal) {
     fi_signal[active_fault_.spatial / 32] = 0x1 << (active_fault_.spatial % 32);
