@@ -30,9 +30,10 @@ void FaultInjection::SetModeRange(unsigned int temporal_start, unsigned int temp
     active_fault_.temporal = rand() % temporal_limit.start + temporal_limit.duration;
     active_fault_.spatial = rand() % (num_fi_signals + 1);
   }
-  log_ << "Fault injection configured with:\n\tfault signal width: " << num_fi_signals << "\n\tfault cycle: " << active_fault_.temporal
-    << " (" << temporal_start << "-" << temporal_duration << ")"
-    << "\n\tfault signal number: " << active_fault_.spatial << std::endl;
+  log_ << "Fault injection configured with:\n\tfault cycle ["
+    << temporal_start << ":" << temporal_duration << "]:\t"
+    << active_fault_.temporal
+    << "\n\tfault signal number [0:" << num_fi_signals-1 << "]:\t" << active_fault_.spatial << std::endl;
 }
 
 void FaultInjection::SetModePrecise(unsigned int fault_temporal, unsigned int fault_spatial) {
