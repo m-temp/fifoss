@@ -59,6 +59,10 @@ void FaultInjection::AddAbortWatch(const char *name, CData *signal, unsigned int
 }
 
 bool FaultInjection::StopRequested() {
+  // Only check after fault is inserted
+  if (!injected_) {
+    return false;
+  }
   // Check for an abort signal
   for (auto a = abort_watch_list_.begin(); a != abort_watch_list_.end(); ++a) {
     // Store a signal assertion
