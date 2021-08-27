@@ -11,19 +11,20 @@
 #include "fault_injection.h"
 #include "data_monitor.h"
 
-int main(int argc, char *argv[], char **env) {
+class FullInvestigation
+{
+public:
+  FullInvestigation (FaultInjection *fi) : fi_(fi) {};
+  void Run();
 
-  std::ofstream fi_log;
-  fi_log.open("fi_log.txt");
+private:
+  FaultInjection *fi_;
+};
 
-  const unsigned int fi_combined_len = 99;
-
-  for (int i = 0; i < fi_combined_len*16; ++i) {
+void FullInvestigation::Run() {
     const std::unique_ptr<VerilatedContext> cp{new VerilatedContext};
 
     cp->traceEverOn(true);
-
-    cp->commandArgs(argc, argv);
 
     const std::unique_ptr<Vtop> top{new Vtop{cp.get(), "TOP"}};
 
@@ -34,12 +35,10 @@ int main(int argc, char *argv[], char **env) {
     top->trace(tfp, 99);
     tfp->open("trace.vcd");
 
-    FaultInjection fi = FaultInjection(fi_combined_len);
-    fi.SetModeRange(4, 20, true, i);
-    fi.SetFaultDuration(2);
+    fi_->SetFaultDuration(2);
 
     // Create a check for `alert_o` and delay the stop for 10 cycles
-    fi.AddAbortWatch("alert_o", &top->alert_o, 10);
+    fi_->AddAbortWatch("alert_o", &top->alert_o, 10);
 
     // Check for 8-bit signal
     // Define values to compare against
@@ -49,15 +48,15 @@ int main(int argc, char *argv[], char **env) {
     // Create a bind function
     std::function <bool (std::string &)> data_o_compare = std::bind(&DataMonitor<CData>::Compare, &data_o, std::placeholders::_1);
     // Add the function to the watch list
-    fi.AddValueComparator(data_o_compare);
+    fi_->AddValueComparator(data_o_compare);
 
     // Check for 32-bit signal
     IData secret[] = {0xdeadbeef};
     DataMonitor<IData> secret_o("secret_o", &top->secret_o, secret, sizeof(secret)/sizeof(IData));
     std::function <bool (std::string &)> secret_o_compare = std::bind(&DataMonitor<IData>::Compare, &secret_o, std::placeholders::_1);
-    fi.AddValueComparator(secret_o_compare);
+    fi_->AddValueComparator(secret_o_compare);
 
-    struct Fault f = fi.GetFaultSpace();
+    struct Fault f = fi_->GetFaultSpace();
     std::cout << "Starting simulation with fault injection config: " << f << std::endl;
 
     while (cp->time() < 200) {
@@ -73,14 +72,14 @@ int main(int argc, char *argv[], char **env) {
       }
 
       if (top->clk) {
-        fi.UpdateInsert(top->fi_combined);
+        fi_->UpdateInsert(top->fi_combined);
       }
 
       top->eval();
 
       // Check for a stop request
       if (top->clk) {
-        if (fi.StopRequested()) {
+        if (fi_->StopRequested()) {
           break;
         }
       }
@@ -89,11 +88,29 @@ int main(int argc, char *argv[], char **env) {
 
     }
 
-    fi_log << fi << std::endl;
+    std::cout << *fi_ << std::endl;
 
     // Finish
     top->final();
     tfp->close();
+}
+
+int main(int argc, char *argv[], char **env) {
+
+  std::ofstream fi_log;
+  fi_log.open("fi_log.txt");
+
+  const unsigned int fi_combined_len = 99;
+
+  for (int i = 0; i < fi_combined_len*16; ++i) {
+
+    FaultInjection fi = FaultInjection(fi_combined_len);
+    fi.SetModeRange(4, 20, true, i);
+
+    FullInvestigation full(&fi);
+
+    full.Run();
+
   }
 
   fi_log.close();
