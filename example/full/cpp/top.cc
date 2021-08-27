@@ -34,7 +34,8 @@ int main(int argc, char *argv[], char **env) {
     top->trace(tfp, 99);
     tfp->open("trace.vcd");
 
-    FaultInjection fi = FaultInjection(fi_combined_len, 4, 20, true, i);
+    FaultInjection fi = FaultInjection(fi_combined_len);
+    fi.SetModeRange(4, 20, true, i);
     fi.SetFaultDuration(2);
 
     // Create a check for `alert_o` and delay the stop for 10 cycles
