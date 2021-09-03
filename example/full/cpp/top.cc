@@ -102,10 +102,18 @@ int main(int argc, char *argv[], char **env) {
 
   const unsigned int fi_combined_len = 99;
 
-  for (int i = 0; i < fi_combined_len*16; ++i) {
+  // Create a fault injection instance by providing the length of the fault
+  // injection bus. All other settings are provided by command line arguments.
+  FaultInjection fi(fi_combined_len);
+  bool exit_app;
+  fi.ParseCommandArgs(argc, argv, exit_app);
+  if (exit_app) {
+    return -1;
+  }
 
-    FaultInjection fi = FaultInjection(fi_combined_len);
-    fi.SetModeRange(4, 20, true, i);
+  for (int i = 0; i < fi.IterationLength(); ++i) {
+
+    fi.UpdateSpace(i);
 
     FullInvestigation full(&fi);
 

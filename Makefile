@@ -56,7 +56,7 @@ example_verilator_full_build: example_verilator_full_fi
 	fusesoc --cores-root . run --target=sim --setup --build towoe:fifoss:example_verilator_full
 
 example_verilator_full_run:
-	./build/towoe_fifoss_example_verilator_full_0.1/sim-verilator/Vtop
+	./build/towoe_fifoss_example_verilator_full_0.1/sim-verilator/Vtop -n 100 -l -z 4,20
 
 example_verilator_full_fi: $(YOSYS_MODULE)
 	cd example/full/ && yosys -m $(realpath $(YOSYS_MODULE)) -c ./tcl/yosys_fi.tcl
