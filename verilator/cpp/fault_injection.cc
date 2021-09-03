@@ -1,5 +1,6 @@
 #include <functional>
 #include <fstream>
+#include <getopt.h>
 #include <iostream>
 #include <cstdlib>
 #include <sstream>
@@ -10,36 +11,142 @@ FaultInjection::FaultInjection(unsigned int fi_signal_len)
   : num_fi_signals(fi_signal_len),
     injected_(false),
     injection_duration_(1),
-    cycle_count_(0) {
+    cycle_count_(0),
+    num_iterations_(1),
+    linear_(false),
+    inject_specific_(false) {
     // Set default values
     active_fault_ = Fault {1, 1};
+    temporal_limit_ = Temporal {1, 1};
 }
 
 void FaultInjection::SetModeRange(unsigned int temporal_start, unsigned int temporal_duration, bool mode_linear, unsigned long int iteration_count) {
-  struct Temporal temporal_limit = Temporal{temporal_start, temporal_duration};
-
-  // Two different ways to set the fault for a specific run.
-  if (mode_linear) {
-    // Linear mode need the current iteration number and will then iterate over the space.
-    // Low frequency for clock and high frequency for position.
-    active_fault_.temporal = iteration_count / num_fi_signals + temporal_limit.start;
-    active_fault_.spatial = iteration_count % num_fi_signals;
-  } else {
-    // Choose values randomly
-    // TODO: Allow to set a manual seed or at some other randomness.
-    active_fault_.temporal = rand() % temporal_limit.start + temporal_limit.duration;
-    active_fault_.spatial = rand() % (num_fi_signals + 1);
-  }
-  log_ << "Fault injection configured with:\n\tfault cycle ["
-    << temporal_start << ":" << temporal_duration << "]:\t"
-    << active_fault_.temporal
-    << "\n\tfault signal number [0:" << num_fi_signals-1 << "]:\t" << active_fault_.spatial << std::endl;
+  temporal_limit_ = Temporal{temporal_start, temporal_duration};
+  linear_ = mode_linear;
+  SetFaultRange(iteration_count);
 }
 
 void FaultInjection::SetModePrecise(unsigned int fault_temporal, unsigned int fault_spatial) {
   active_fault_ = Fault {fault_temporal, fault_spatial};
-  log_ << "Fault injection configured with:\nfault signal width: " << num_fi_signals << "\nfault cycle: " << active_fault_.temporal
-    << "\nfault signal number: " << active_fault_.spatial << std::endl;
+  log_ << "Fault injection configured with:\nfault signal width: "
+       << num_fi_signals << "\nfault cycle: " << active_fault_.temporal
+       << "\nfault signal number: " << active_fault_.spatial << std::endl;
+}
+
+void FaultInjection::UpdateSpace(unsigned long int iteration_count) {
+  log_.clear();
+  log_.str("");
+  injected_ = false;
+  SetFaultRange(iteration_count);
+}
+
+void FaultInjection::SetFaultRange(unsigned long int iteration_count) {
+  // Two different ways to set the fault for a specific run.
+  if (linear_) {
+    // Linear mode need the current iteration number and will then iterate over the space.
+    // Low frequency for clock and high frequency for position.
+    active_fault_.temporal = iteration_count / num_fi_signals + temporal_limit_.start;
+    active_fault_.spatial = iteration_count % num_fi_signals;
+  } else {
+    // Choose values randomly
+    // TODO: Allow to set a manual seed or at some other randomness.
+    active_fault_.temporal = rand() % temporal_limit_.start + temporal_limit_.duration;
+    active_fault_.spatial = rand() % (num_fi_signals + 1);
+  }
+  log_ << "Fault injection configured with:\n\tfault cycle ["
+    << temporal_limit_.start << ":" << temporal_limit_.duration << "]:\t"
+    << active_fault_.temporal
+    << "\n\tfault signal number [0:" << num_fi_signals-1 << "]:\t" << active_fault_.spatial << std::endl;
+}
+
+std::pair<int, int> ExtractPairValue(std::string str) {
+        std::istringstream iss;
+        int first, second;
+        char separator;
+        iss.str(str);
+        // Number; single character as separator; number
+        iss >> first >> separator >> second;
+        return std::make_pair(first, second);
+}
+
+bool FaultInjection::ParseCommandArgs(int argc, char **argv, bool &exit_app) {
+  // TODO: option to read already tested combination, continue fault injection
+  const struct option long_options[] = {
+      {"iterations", required_argument, nullptr, 'n'},
+      {"linear", no_argument, nullptr, 'l'},
+      {"inject", required_argument, nullptr, 'i'},
+      {"temporal-limits", required_argument, nullptr, 'z'},
+      {"help", no_argument, nullptr, 'h'},
+      {nullptr, no_argument, nullptr, 0}};
+  optind = 1;
+  std::pair<int, int> inject_space;
+  std::pair<int, int> temporal_limit;
+
+  while (1) {
+    int c = getopt_long(argc, argv, ":n:li:z:h", long_options, nullptr);
+    if (c == -1) {
+      break;
+    }
+    // Disable error reporting by getopt
+    opterr = 0;
+
+    switch (c) {
+      case 0:
+        break;
+      case 'h':
+        std::cout << "Fault injection analysis options:\n"
+                     "=================================\n\n"
+                     "-n|--iterations=N\n  Number of simulation iterations\n\n"
+                     "-l|--linear\n  Consecutively cycle through the fault space "
+                     "(spatially with high frequency) instead of randomly\n\n"
+                     "-i|--inject=t,p\n  Set cycle and position for fault injection\n\n"
+                     "-z|--temporal-limits=t0,td\n  Restrict temporal space\n"
+                     "  Start time,Duration\n\n"
+                  << std::endl;
+        exit_app = true;
+        break;
+      case 'n':
+        num_iterations_ = std::stoul(optarg);
+        break;
+      case 'l':
+        linear_ = true;
+        break;
+      case 'i':
+        // Parse data from "12,34"
+        inject_space = ExtractPairValue(optarg);
+        active_fault_ = Fault {
+          static_cast<unsigned int>(inject_space.first),
+          static_cast<unsigned int>(inject_space.second)};
+        inject_specific_ = true;
+        break;
+      case 'z':
+        temporal_limit = ExtractPairValue(optarg);
+        temporal_limit_ = Temporal{
+          static_cast<unsigned int>(temporal_limit.first),
+          static_cast<unsigned int>(temporal_limit.second)};
+        break;
+      case ':':  // missing argument
+        std::cerr << "ERROR: Missing argument." << std::endl << std::endl;
+        exit_app = true;
+        return false;
+      case '?':
+      default:;
+        // Ignore unrecognized options since they might be consumed by
+        // Verilator's built-in parsing below.
+    }
+  }
+  if (!inject_specific_) {
+    SetFaultRange();
+  }
+  return true;
+}
+
+unsigned int FaultInjection::IterationLength() {
+  if (inject_specific_) {
+    // For now only one specific testing at a time
+    return 1;
+  }
+  return num_iterations_;
 }
 
 struct Fault FaultInjection::GetFaultSpace() {
