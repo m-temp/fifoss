@@ -48,12 +48,33 @@ class FaultInjection {
     void SetModeRange(unsigned int temporal_start, unsigned int temporal_duration, bool mode_linear, unsigned long int iteration_count = 0);
 
     /**
-     * Craete a specific fault injection.
+     * Update the fault values based on the iteration number.
+     *
+     * This is helpful if only one instance of `FaultInjection` is used for
+     * multiple iterations. The initial variables must be set by either
+     * analysing the arguments via `ParseCommandArgs` or by setting it via
+     * `SetModeRange`.
+     */
+    void UpdateSpace(unsigned long int iteration_count);
+
+    /**
+     * Create a specific fault injection.
      *
      * Set the exact temporal and spatial value for the fault injection.
      * This is useful in investigating a design after an intial exploration.
      */
     void SetModePrecise(unsigned int fault_temporal, unsigned int fault_spatial);
+
+    /**
+     * Parse command line argument and set the internal variables to the values
+     * provided by the user.
+     */
+    bool ParseCommandArgs(int argc, char **argv, bool &exit_app);
+
+    /**
+     * Get the number of iterations extracted from parsed arguments.
+     */
+    unsigned int IterationLength();
 
     /**
      * Return the config and the accumulated log.
@@ -123,9 +144,18 @@ class FaultInjection {
     unsigned int injection_duration_;
     unsigned long cycle_count_;
     struct Fault active_fault_;
+    unsigned long num_iterations_;
+    bool linear_ = false;
+    bool inject_specific_ = false;
+    struct Temporal temporal_limit_;
     std::vector<struct AbortInfo> abort_watch_list_;
     std::vector<std::function<bool (std::string &)>> value_compare_list_;
     std::stringstream log_;
+
+    /**
+     * Sets the fault based on the configuration.
+     */
+    void SetFaultRange(unsigned long int iteration_count = 0);
 };
 
 // TODO: make fault active length variable
