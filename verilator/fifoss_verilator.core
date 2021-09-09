@@ -6,6 +6,7 @@ filesets:
     files:
       - cpp/fault_injection.cc
       - cpp/fault_injection.h: { is_include_file: true }
+      - cpp/data_monitor.h: { is_include_file: true }
     file_type: cppSource
 
 targets:
