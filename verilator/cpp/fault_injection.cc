@@ -6,11 +6,16 @@
 #include <utility>
 #include "fault_injection.h"
 
-FaultInjection::FaultInjection(unsigned int fi_signal_len, int temporal_start, int temporal_duration, bool mode_linear, unsigned long int iteration_count)
+FaultInjection::FaultInjection(unsigned int fi_signal_len)
   : num_fi_signals(fi_signal_len),
-    injection_duration_(1) {
-  injected_ = false;
-  cycle_count_ = 0;
+    injected_(false),
+    injection_duration_(1),
+    cycle_count_(0) {
+    // Set default values
+    active_fault_ = Fault {1, 1};
+}
+
+void FaultInjection::SetModeRange(unsigned int temporal_start, unsigned int temporal_duration, bool mode_linear, unsigned long int iteration_count) {
   struct Temporal temporal_limit = Temporal{temporal_start, temporal_duration};
 
   // Two different ways to set the fault for a specific run.
@@ -25,18 +30,14 @@ FaultInjection::FaultInjection(unsigned int fi_signal_len, int temporal_start, i
     active_fault_.temporal = rand() % temporal_limit.start + temporal_limit.duration;
     active_fault_.spatial = rand() % (num_fi_signals + 1);
   }
-  log_ << "Fault injection configured with:\n\tfault signal width: " << fi_signal_len << "\n\tfault cycle: " << active_fault_.temporal
+  log_ << "Fault injection configured with:\n\tfault signal width: " << num_fi_signals << "\n\tfault cycle: " << active_fault_.temporal
     << " (" << temporal_start << "-" << temporal_duration << ")"
     << "\n\tfault signal number: " << active_fault_.spatial << std::endl;
 }
 
-FaultInjection::FaultInjection(unsigned int fi_signal_len, int fault_temporal, int fault_spatial)
-  : num_fi_signals(fi_signal_len),
-    injection_duration_(1) {
-  injected_ = false;
-  cycle_count_ = 0;
+void FaultInjection::SetModePrecise(unsigned int fault_temporal, unsigned int fault_spatial) {
   active_fault_ = Fault {fault_temporal, fault_spatial};
-  log_ << "Fault injection configured with:\nfault signal width: " << fi_signal_len << "\nfault cycle: " << active_fault_.temporal
+  log_ << "Fault injection configured with:\nfault signal width: " << num_fi_signals << "\nfault cycle: " << active_fault_.temporal
     << "\nfault signal number: " << active_fault_.spatial << std::endl;
 }
 
