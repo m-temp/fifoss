@@ -11,8 +11,8 @@
 #include <verilated.h>
 
 struct Fault {
-  int temporal;
-  int spatial;
+  unsigned int temporal;
+  unsigned int spatial;
   friend std::ostream &operator<<(std::ostream& os, const struct Fault& f);
 };
 
@@ -26,22 +26,38 @@ struct AbortInfo {
 };
 
 struct Temporal {
-  int start;
-  int duration;
+  unsigned int start;
+  unsigned int duration;
 };
 
 class FaultInjection {
   public:
     /**
-     * Create fault injection by limiting the fault space.
+     * Constructor needed the width of the fault injection siganl.
      */
-    FaultInjection(unsigned int fi_signal_len, int temporal_start, int temporal_duration, bool mode_linear, unsigned long iteration_count = 0);
+    FaultInjection(unsigned int fi_signal_len);
 
     /**
-     * Create fault injection by specifying precise clock and position.
+     * Create a fault injection space.
+     *
+     * Limit the temporal space by setting boundaries.
+     * The spatial selection is made depending on `mode_linear` and `iteration_count`.
+     * In a linear mode the spatial selection is based on the current iteration.
+     * In the non-linear mode the spatial selection is randomly assigned.
      */
-    FaultInjection(unsigned int fi_signal_len, int fault_temporal, int fault_spatial);
+    void SetModeRange(unsigned int temporal_start, unsigned int temporal_duration, bool mode_linear, unsigned long int iteration_count = 0);
 
+    /**
+     * Craete a specific fault injection.
+     *
+     * Set the exact temporal and spatial value for the fault injection.
+     * This is useful in investigating a design after an intial exploration.
+     */
+    void SetModePrecise(unsigned int fault_temporal, unsigned int fault_spatial);
+
+    /**
+     * Return the config and the accumulated log.
+     */
     friend std::ostream &operator<<(std::ostream& os, const FaultInjection& f);
 
     /**
