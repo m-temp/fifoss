@@ -4,11 +4,19 @@
 #include <cstdint>
 #include <fstream>
 #include <iostream>
+#include <vector>
 #include <verilated.h>
 
 struct fault {
 	int temporal;
 	int spatial;
+};
+
+struct abortWatch {
+	CData *signal;
+	bool positive_polarity;
+	unsigned int delay;
+	bool asserted;
 };
 
 struct temporal {
@@ -39,6 +47,23 @@ class FaultInjection {
     bool UpdateInsert(T *fi);
 
     /**
+     * Add an abort signal to the watch list.
+     *
+     * Abort signals are signals which, when asserted, are meant so signal an
+     * end of the simulation.
+     * This can be for example an alter handler which is triggered by an
+     * injected fault.
+     */
+    void AddAbortWatch(CData *signal, unsigned int delay = 0, bool positive_polarity = true);
+
+    /**
+     * Convey a request to stop the simulation.
+     *
+     * This is triggered by an assertion of an abort signal, see `AddAbortWatch`.
+     */
+    bool StopRequested(void);
+
+    /**
      * Check if a fault has been injected.
      */
     bool Injected();
@@ -58,6 +83,7 @@ class FaultInjection {
     bool injected_;
     unsigned long cycle_count_;
     struct fault active_fault_;
+    std::vector<struct abortWatch> abort_watch_list_;
 };
 
 /* Fault injection for signals with a width < 65 */
