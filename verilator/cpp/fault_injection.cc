@@ -13,16 +13,16 @@ FaultInjection::FaultInjection(unsigned int fi_signal_len)
     injection_duration_(1),
     cycle_count_(0),
     num_iterations_(1),
-    linear_(false),
+    sequential_(false),
     inject_specific_(false) {
     // Set default values
     active_fault_ = Fault {1, 1};
     temporal_limit_ = Temporal {1, 1};
 }
 
-void FaultInjection::SetModeRange(unsigned int temporal_start, unsigned int temporal_duration, bool mode_linear, unsigned long int iteration_count) {
+void FaultInjection::SetModeRange(unsigned int temporal_start, unsigned int temporal_duration, bool mode_sequential, unsigned long int iteration_count) {
   temporal_limit_ = Temporal{temporal_start, temporal_duration};
-  linear_ = mode_linear;
+  sequential_ = mode_sequential;
   SetFaultRange(iteration_count);
 }
 
@@ -42,9 +42,9 @@ void FaultInjection::UpdateSpace(unsigned long int iteration_count) {
 
 void FaultInjection::SetFaultRange(unsigned long int iteration_count) {
   // Two different ways to set the fault for a specific run.
-  if (linear_) {
-    // Linear mode need the current iteration number and will then iterate over the space.
-    // Low frequency for clock and high frequency for position.
+  if (sequential_) {
+    // Sequential mode needs the current iteration number and will then iterate
+    // over the space. Low frequency for clock and high frequency for position.
     active_fault_.temporal = iteration_count / num_fi_signals + temporal_limit_.start;
     active_fault_.spatial = iteration_count % num_fi_signals;
   } else {
@@ -73,7 +73,7 @@ bool FaultInjection::ParseCommandArgs(int argc, char **argv, bool &exit_app) {
   // TODO: option to read already tested combination, continue fault injection
   const struct option long_options[] = {
       {"iterations", required_argument, nullptr, 'n'},
-      {"linear", no_argument, nullptr, 'l'},
+      {"sequential", no_argument, nullptr, 's'},
       {"inject", required_argument, nullptr, 'i'},
       {"temporal-limits", required_argument, nullptr, 'z'},
       {"help", no_argument, nullptr, 'h'},
@@ -83,7 +83,7 @@ bool FaultInjection::ParseCommandArgs(int argc, char **argv, bool &exit_app) {
   std::pair<int, int> temporal_limit;
 
   while (1) {
-    int c = getopt_long(argc, argv, ":n:li:z:h", long_options, nullptr);
+    int c = getopt_long(argc, argv, ":n:si:z:h", long_options, nullptr);
     if (c == -1) {
       break;
     }
@@ -97,7 +97,7 @@ bool FaultInjection::ParseCommandArgs(int argc, char **argv, bool &exit_app) {
         std::cout << "Fault injection analysis options:\n"
                      "=================================\n\n"
                      "-n|--iterations=N\n  Number of simulation iterations\n\n"
-                     "-l|--linear\n  Consecutively cycle through the fault space "
+                     "-s|--sequential\n  Consecutively cycle through the fault space "
                      "(spatially with high frequency) instead of randomly\n\n"
                      "-i|--inject=t,p\n  Set cycle and position for fault injection\n\n"
                      "-z|--temporal-limits=t0,td\n  Restrict temporal space\n"
@@ -108,8 +108,8 @@ bool FaultInjection::ParseCommandArgs(int argc, char **argv, bool &exit_app) {
       case 'n':
         num_iterations_ = std::stoul(optarg);
         break;
-      case 'l':
-        linear_ = true;
+      case 's':
+        sequential_ = true;
         break;
       case 'i':
         // Parse data from "12,34"
