@@ -41,11 +41,11 @@ class FaultInjection {
      * Create a fault injection space.
      *
      * Limit the temporal space by setting boundaries.
-     * The spatial selection is made depending on `mode_linear` and `iteration_count`.
-     * In a linear mode the spatial selection is based on the current iteration.
-     * In the non-linear mode the spatial selection is randomly assigned.
+     * The spatial selection is made depending on `mode_sequential` and `iteration_count`.
+     * In a sequential mode the spatial selection is based on the current iteration.
+     * In the non-sequential mode the spatial selection is randomly assigned.
      */
-    void SetModeRange(unsigned int temporal_start, unsigned int temporal_duration, bool mode_linear, unsigned long int iteration_count = 0);
+    void SetModeRange(unsigned int temporal_start, unsigned int temporal_duration, bool mode_sequential, unsigned long int iteration_count = 0);
 
     /**
      * Update the fault values based on the iteration number.
@@ -145,7 +145,7 @@ class FaultInjection {
     unsigned long cycle_count_;
     struct Fault active_fault_;
     unsigned long num_iterations_;
-    bool linear_ = false;
+    bool sequential_ = false;
     bool inject_specific_ = false;
     struct Temporal temporal_limit_;
     std::vector<struct AbortInfo> abort_watch_list_;
