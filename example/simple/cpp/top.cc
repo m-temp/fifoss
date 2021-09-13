@@ -1,14 +1,13 @@
-#include <memory>
-#include <iostream>
-
 #include <verilated.h>
 #include <verilated_vcd_c.h>
+
+#include <iostream>
+#include <memory>
 
 #include "Vtop.h"
 #include "fault_injection.h"
 
 int main(int argc, char *argv[], char **env) {
-
   const std::unique_ptr<VerilatedContext> cp{new VerilatedContext};
 
   cp->traceEverOn(true);
