@@ -34,7 +34,7 @@ struct Temporal {
 class FaultInjection {
  public:
   /**
-   * Constructor needed the width of the fault injection siganl.
+   * Constructor needed the width of the fault injection signal.
    */
   FaultInjection(unsigned int fi_signal_len);
 
@@ -65,7 +65,7 @@ class FaultInjection {
    * Create a specific fault injection.
    *
    * Set the exact temporal and spatial value for the fault injection.
-   * This is useful in investigating a design after an intial exploration.
+   * This is useful in investigating a design after an initial exploration.
    */
   void SetModePrecise(unsigned int fault_temporal, unsigned int fault_spatial);
 
@@ -110,7 +110,7 @@ class FaultInjection {
    * Convey a request to stop the simulation.
    *
    * This is triggered by an assertion of an abort signal, see `AddAbortWatch`,
-   * and by a positive data comparsion from the values added by
+   * and by a positive data comparison from the values added by
    * `AddValueComparator`.
    */
   bool StopRequested(void);
