@@ -97,6 +97,25 @@ Tested with:
 
 ### Using `FaultInjection`
 
+Create an instance of `FaultInjection` and set the length of the fault
+injection bus. Configure the mode, by either setting it directly or by parsing
+command line arguments. Call `UpdateInsert()` in each clock cycle and provide a
+pointer to the fault injection signal.
+
+This could look roughly like this:
+
+    ...
+    FaultInjection fi(100); // Fault bus length 100
+    fi.SetModePrecise(40, 50); // Fault in cycle 40 and bit 50
+    ...
+    while() {
+        top->clk = !top->clk;
+        if (top->clk) {
+            fi.UpdateInsert(top->fi_combined); // Pointer to fault injection bus
+        }
+    }
+    ...
+
 ### Running the examples
 
 Two examples are provided.

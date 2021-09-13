@@ -23,9 +23,9 @@ int main(int argc, char *argv[], char **env) {
   top->trace(tfp, 99);
   tfp->open("trace.vcd");
 
-  // Creat a fault injection with the width of top->fi_combined, an activation
-  // in clyce 8 and at top->fi_combined[42].
-  FaultInjection fi = FaultInjection(46);
+  // Create a fault injection with the width of top->fi_combined, an activation
+  // in cycle 8 and at top->fi_combined[42].
+  FaultInjection fi(46);
   fi.SetModePrecise(8, 42);
 
   bool sim_done = false;

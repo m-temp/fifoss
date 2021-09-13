@@ -198,7 +198,7 @@ bool FaultInjection::StopRequested() {
         a->delay_count--;
       } else {
         log_ << cycle_count_ << "\t" << active_fault_ << "\t"
-             << "abort signal dealy expired"
+             << "abort signal delay expired"
              << "\t" << a->name_ << std::endl;
         return true;
       }
